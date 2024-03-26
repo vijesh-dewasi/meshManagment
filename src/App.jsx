@@ -21,11 +21,16 @@ function App() {
       <LocalizationProvider dateAdapter={AdapterDayjs}>
       {/* <AdminDashBoard></AdminDashBoard> */}
       <UnivDashBoard></UnivDashBoard>
-      <SignUp></SignUp>
       <UserDashBoard></UserDashBoard>
+      <AdminDashBoard></AdminDashBoard>
+      
       <UnivSignUp></UnivSignUp>
       <UnivLogin></UnivLogin>
+
+      
+      <SignUp></SignUp>
       <SignIn></SignIn>
+        
       </LocalizationProvider>
       </ThemeProvider>
       </>
