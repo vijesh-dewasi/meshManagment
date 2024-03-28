@@ -8,7 +8,6 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { createTheme} from '@mui/material/styles';
 import { Alert,InputAdornment,IconButton,Select,MenuItem,InputLabel,Stack,Snackbar} from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -18,6 +17,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { useSnackContext } from '../SnackProvider';
+import { useFullScreenContext } from '../fullScreenProvider';
 
 
 
@@ -28,9 +29,12 @@ export default function SignUp() {
     const [mobile,setMobile]=useState("")
     const [helper,setHelper]=useState(false);
 
+    const {snack,setSnack}=useSnackContext();
+    const {fullScreen,setFullScreen}=useFullScreenContext();
+    
 
     const [otp,setOtp]=useState(false);
-    const [mobileOtp,setMobileOtp]=useState("");
+    // const [mobileOtp,setMobileOtp]=useState("");
     const [emailOtp,setEmailOtp]=useState("");
 
     const submitOtp=(e)=>{
@@ -43,11 +47,6 @@ export default function SignUp() {
     }
 
     const [role,setRole]=useState("Student");
-    const [snack, setSnack]=useState({
-        open: false,
-        msg:"I love snacks",
-        severity:"info"
-    });
     
   
   const handleClose=()=>{
@@ -94,22 +93,7 @@ export default function SignUp() {
 
 
   return (
-    <Box sx={{minWidth:'100vw',mb:'100px'}}>
-        <Snackbar
-        anchorOrigin={{vertical:'top',horizontal:'center'}}
-        open={snack.open}
-        onClose={handleClose}
-        autoHideDuration={4500}
-        >
-          <Alert
-            onClose={handleClose}
-            severity={snack.severity}
-            variant="filled"
-            sx={{ width: '100%' }}
-            >
-            {snack.msg}
-            </Alert>
-        </Snackbar>   
+    <Box sx={{minWidth:'100%',mb:'100px'}}>   
       <Container component="main" maxWidth="xs">
         <Box
           sx={{
@@ -120,9 +104,6 @@ export default function SignUp() {
           }}
         >
           
-          <Typography component="h1" variant="h5">
-            HOSTEL MESH
-          </Typography>
 
             <Avatar
             alt="MBM_LOGO"
@@ -283,10 +264,15 @@ export default function SignUp() {
             >
               Sign Up
             </Button>
-            <Grid container justifyContent="flex-end">
+            <Grid container justifyContent="space-between">
               <Grid item>
                 <Link href="#" variant="body2">
                   Sign in
+                </Link>
+              </Grid>
+              <Grid item>
+                <Link href="#" variant="body2">
+                  Forgot password?
                 </Link>
               </Grid>
             </Grid>
@@ -313,7 +299,7 @@ export default function SignUp() {
 
         <Stack direction={'column'} gap={2}>
 
-                <TextField               
+                {/* <TextField               
                     inputProps={{ maxLength:6,minLength:6}}
                     margin="dense"
                     id="mobileOtp"
@@ -335,7 +321,7 @@ export default function SignUp() {
                       setHelper(true);
                       }
                     }}
-                />
+                /> */}
                 <TextField               
                     inputProps={{ maxLength:6,minLength:6}}
                     margin="dense"

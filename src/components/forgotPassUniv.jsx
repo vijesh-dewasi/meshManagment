@@ -3,8 +3,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -14,28 +12,49 @@ import Container from '@mui/material/Container';
 import {InputAdornment,IconButton,Select ,Menu,MenuItem,InputLabel,Stack} from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
 
 
-export default function SignIn() {
+
+export default function ForgoPassUniv() {
 
     const [showPassword,setShowPassword]=useState(false);
     const handleClickShowPassword = () => setShowPassword(!showPassword);
     const handleMouseDownPassword = () => setShowPassword(!showPassword);
-    const [mobile,setMobile]=useState("")
     const [helper,setHelper]=useState(false)
-
+    
+    const [email,setEmail]=useState("")
+    const[otpBox,setOtpBox]=useState(false)
+    const [otp,setOtp]=useState("")
+    
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-      select:data.get('role')
+      email: data.get('email')
     });
+    // get the otp sent 
+    setOtpBox(true)
   };
+        
+
+        const submitOtp=(e)=>{
+            e.preventDefault();
+            //verify otp and change password
+            console.log(e.target.otp,e.target.email)
+            setOtpBox(false)
+        }
+        const resendOtp=()=>{
+            // get the otp again
+            return;
+        }
+  
 
   return (
-     <Box sx={{minWidth:'100%',mb:'100px'}}>
+     <Box sx={{minWidth:'100vw',mb:'100px'}}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -46,8 +65,6 @@ export default function SignIn() {
             alignItems: 'center',
           }}
         >  
-          
-
             <Avatar
             alt="MBM_LOGO"
             src="../public/MBM_LOGO.png"
@@ -60,50 +77,13 @@ export default function SignIn() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign in 
+            Forgot password 
           </Typography>
           </Stack>
 
 
           <Box component="form" onSubmit={handleSubmit}  sx={{ mt: 1 }}>
-           
-            <InputLabel id="roleLabel">Role</InputLabel>
-            <Select
-                required
-                fullWidth
-                labelId="roleLabel"
-                id="role"
-                name='role'
-                defaultValue={"Student"}
-            >
-                <MenuItem value={"Student"}>Student</MenuItem>
-                <MenuItem value={"Admin"}>Admin</MenuItem>
-                <MenuItem value={"Manager"}>Manager</MenuItem>
-            </Select>
-            
-            <TextField
-                    margin="dense"
-                    id="mobile"
-                    name="mobile"
-                    label="Mobile"
-                    type="text"
-                    fullWidth
-                    required
-                    inputProps={{ maxLength:10,minLength:10}}
-                    value={mobile}
-                    helperText={helper?"pls enter number only":""}
-                    onChange={(e)=>{
-                      const num=e.target.value;
-                      if(/^\d+$/.test(num)){
-                      setMobile(num)
-                      }
-                      else{
-                      setMobile("")
-                      setHelper(true);
-                      }
-                    }}
-                />
-
+        
             <TextField
               margin="normal"
               required
@@ -113,8 +93,53 @@ export default function SignIn() {
               name="email"
               type='email'
               autoComplete="email"
+              value={email}
+              onChange={(e)=>setEmail(e.target.value)}
               autoFocus
             />
+            
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+             Change Password
+            </Button>
+            <Grid container>
+              <Grid item xs>
+                <Link href="#" variant="body2">
+                    {"Sign Up"}
+                </Link>
+              </Grid>
+              <Grid item>
+                <Link href="#" variant="body2">
+                  {"Sign in"}
+                </Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+      </Container>
+      
+      <Dialog
+        open={otpBox}
+        onClose={()=>{()=>{setOtpBox(false)}}}
+        PaperProps={{
+          component: 'form',
+          onSubmit: (e) => {submitOtp(e)}
+        }}
+      >
+
+
+        <DialogContent sx={{maxWidth:'400px'}}>
+
+          <DialogContentText>
+          Enter the  new password and the otp sent to your email
+          </DialogContentText>
+
+        <Stack direction={'column'} gap={2}>
+
             <TextField
                   required
                   fullWidth
@@ -138,32 +163,42 @@ export default function SignIn() {
                           )
                         }}
                 />
-
+                <TextField               
+                    inputProps={{ maxLength:6,minLength:6}}
+                    margin="dense"
+                    id="otp"
+                    name="otp"
+                    label="otp sent to email"
+                    type="text"
+                    helperText={helper?"pls enter number only":""}
+                    variant="standard"
+                    value={otp}
+                    onChange={(e)=>{
+                      const num=e.target.value;
+                      if(/^\d+$/.test(num)){
+                      setOtp(num)
+                      }
+                      else{
+                      setOtp("")
+                      setHelper(true);
+                      }
+                    }}
+                />
+                <Button onClick={(e)=>{resendOtp()}}>Resend Otp</Button>
+            </Stack>
             
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="#" variant="body2">
-                  {"Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-      </Container>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={()=>{setOtpBox(false)}}>Cancel</Button>
+          <Button type="submit">Submit</Button>
+        </DialogActions>
+      </Dialog>      
+
     </Box>
     
   );
 }
+
+
+
+

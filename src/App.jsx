@@ -14,6 +14,13 @@ import AlertSnack from './components/alertSnack.jsx';
 import FullScreenLoad from './components/fullScreenLoad.jsx';
 import {SnackProvider} from './SnackProvider.jsx';
 import {FullScreenProvider,useFullScreenContext} from './fullScreenProvider.jsx';
+import ForgotPass from './components/forgotpass.jsx';
+import ForgotPassUniv from './components/forgotPassUniv.jsx';
+
+import {
+  BrowserRouter as Router,
+  Routes, Route,Link as RouterLink, Navigate,
+} from 'react-router-dom'
 
 function App() {
   const defaultTheme = createTheme();
@@ -27,18 +34,31 @@ function App() {
       <SnackProvider>
       
 
-      {/* <AlertSnack></AlertSnack> */}
-      {/* <FullScreenLoad></FullScreenLoad> */}
+      <AlertSnack></AlertSnack>
+      <FullScreenLoad></FullScreenLoad>
+  
 
-      <UnivSignUp></UnivSignUp>
+      <Router>
+        <Routes>
+          
+          <Route path="/instsignup" element={<UnivSignUp />} />
+          <Route path="/instlogin" element={<UnivLogin />} />
+          <Route path="/forgotpassinst" element={<ForgotPassUniv/>}/>
 
-      {/* <AdminDashBoard></AdminDashBoard> */}
-      {/* <UnivDashBoard></UnivDashBoard> */}
-      {/* <SignUp></SignUp> */}
-      {/* <UserDashBoard></UserDashBoard> */}
-      {/* <UnivLogin></UnivLogin>
-      <SignIn></SignIn> */}
-      
+          <Route path="/login" element={<SignIn/>} />
+          <Route path="/signup" element={<SignUp/>} />
+          <Route path="/forgotpass" element={<ForgotPass/>}/>
+          
+          <Route path="/userdashboard" element={<UserDashBoard />} />
+          <Route path="/admindashboard" element={<AdminDashBoard />} />
+          <Route path="/univdashboard" element={<UnivDashBoard />} />
+
+          <Route path="*" element={<Navigate to="/login" />} />     
+
+        </Routes>
+      </Router> 
+
+
       </SnackProvider>
       </FullScreenProvider>
       </LocalizationProvider>

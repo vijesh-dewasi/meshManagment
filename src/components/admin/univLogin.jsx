@@ -41,7 +41,7 @@ export default function UnivLogin() {
   };
 
   return (
-     <Box sx={{minWidth:'100vw'}}>
+     <Box sx={{minWidth:'100%',mb:'100px'}}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -52,9 +52,7 @@ export default function UnivLogin() {
             alignItems: 'center',
           }}
         >  
-          <Typography component="h1" variant="h5">
-            MBM HOSTEL MESH
-          </Typography>
+          
 
             <Avatar
             alt="MBM_LOGO"
@@ -68,7 +66,7 @@ export default function UnivLogin() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign in 
+            Institute Sign In 
           </Typography>
           </Stack>
 

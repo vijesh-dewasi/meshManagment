@@ -8,11 +8,16 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import {Alert,InputAdornment,IconButton,Stack,Snackbar} from '@mui/material';
+import {InputAdornment,IconButton,Stack} from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useSnackContext } from '../../SnackProvider';
 import { useFullScreenContext } from '../../fullScreenProvider';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 const UnivSignUp = () => {
   
@@ -21,10 +26,22 @@ const UnivSignUp = () => {
     
     const [mobile,setMobile]=useState("")
     const [helper,setHelper]=useState(false);
-    
+
     const {snack,setSnack}=useSnackContext();
     const {fullScreen,setFullScreen}=useFullScreenContext();
     
+    const [otp,setOtp]=useState(false);
+    const [emailOtp,setEmailOtp]=useState("");
+
+    const submitOtp=(e)=>{
+      e.preventDefault();
+      console.log(e.target.emailOtp.value)
+      setOtp(false)
+    }
+    const resendOtp=()=>{
+      return;
+    }
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -52,16 +69,44 @@ const UnivSignUp = () => {
     }
 
     setFullScreen(true);
-    setTimeout(()=>{setFullScreen(false)},10000);
+  
     
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-      univName:data.get('univName'),
-      mobile:data.get('mobile'),
-      password2:data.get('password2')
-    });
+    const formData={
+      university_name:data.get('univName'),
+      university_mobile:data.get('mobile'),
+      university_email: data.get('email'),
+      password: data.get('password')
+    }
+    
+    const queryParams = new URLSearchParams(formData).toString();
+    console.log(queryParams)
+    
+    const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/SignupUniversity?"+queryParams;    
+      console.log(url,import.meta.env.VITE_HOST,import.meta.env.VITE_PORT)
 
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8'
+      }
+    })
+    .then(response => {
+      if (!response.ok) 
+      throw new Error('Network response was not ok');
+      return response.json()
+    })
+    .then(data => {
+      console.log('Response:', data)
+      setFullScreen(false)
+      setOtp(true)
+    })
+    .catch(error => {
+      console.error('Error:', error)
+      setFullScreen(false)
+      setOtp(true)
+
+    })
+    
   };
 
 
@@ -210,17 +255,76 @@ const UnivSignUp = () => {
             >
               Sign Up
             </Button>
-            <Grid container justifyContent="flex-end">
+
+            <Grid container justifyContent="space-between">
               <Grid item>
                 <Link href="#" variant="body2">
                   Sign in
                 </Link>
               </Grid>
+              <Grid item>
+                <Link href="#" variant="body2">
+                   Not Institute?
+                </Link>
+              </Grid>
             </Grid>
+
           </Box>
         </Box> 
       </Container>
       
+      <Dialog
+        open={otp}
+        onClose={()=>{()=>{setOtp(false)}}}
+        PaperProps={{
+          component: 'form',
+          onSubmit: (e) => {submitOtp(e)}
+        }}
+      >
+
+        <DialogTitle>Otp Verification</DialogTitle>
+
+        <DialogContent>
+
+          <DialogContentText>
+           enter otp's sent on email
+          </DialogContentText>
+
+        <Stack direction={'column'} gap={2}>
+
+                <TextField               
+                    inputProps={{ maxLength:6,minLength:6}}
+                    margin="dense"
+                    id="emailOtp"
+                    name="emailOtp"
+                    label="otp on email"
+                    type="text"
+                    fullWidth
+                    helperText={helper?"pls enter number only":""}
+                    variant="standard"
+                    value={emailOtp}
+                    required
+                    onChange={(e)=>{
+                      const num=e.target.value;
+                      if(/^\d+$/.test(num)){
+                      setEmailOtp(num)
+                      }
+                      else{
+                      setEmailOtp("")
+                      setHelper(true);
+                      }
+                    }}
+                />
+                <Button onClick={(e)=>{resendOtp()}}>Resend Otp</Button>
+
+            </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={()=>{setOtp(false)}}>Cancel</Button>
+          <Button type="submit">Submit</Button>
+        </DialogActions>
+      </Dialog>
+
     </Box>)
 }
 
