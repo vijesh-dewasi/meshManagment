@@ -10,6 +10,10 @@ import AdminDashBoard from './components/admin/adminDashBoard.jsx';
 import UnivSignUp from './components/admin/univSignUp.jsx'
 import UnivLogin from './components/admin/univLogin.jsx'
 import UnivDashBoard from './components/admin/univDashBoard.jsx'
+import AlertSnack from './components/alertSnack.jsx';
+import FullScreenLoad from './components/fullScreenLoad.jsx';
+import {SnackProvider} from './SnackProvider.jsx';
+import {FullScreenProvider,useFullScreenContext} from './fullScreenProvider.jsx';
 
 function App() {
   const defaultTheme = createTheme();
@@ -19,13 +23,24 @@ function App() {
       <ThemeProvider theme={defaultTheme}>
       <CssBaseline/>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-      {/* <AdminDashBoard></AdminDashBoard> */}
-      <UnivDashBoard></UnivDashBoard>
-      <SignUp></SignUp>
-      <UserDashBoard></UserDashBoard>
+      <FullScreenProvider>
+      <SnackProvider>
+      
+
+      {/* <AlertSnack></AlertSnack> */}
+      {/* <FullScreenLoad></FullScreenLoad> */}
+
       <UnivSignUp></UnivSignUp>
-      <UnivLogin></UnivLogin>
-      <SignIn></SignIn>
+
+      {/* <AdminDashBoard></AdminDashBoard> */}
+      {/* <UnivDashBoard></UnivDashBoard> */}
+      {/* <SignUp></SignUp> */}
+      {/* <UserDashBoard></UserDashBoard> */}
+      {/* <UnivLogin></UnivLogin>
+      <SignIn></SignIn> */}
+      
+      </SnackProvider>
+      </FullScreenProvider>
       </LocalizationProvider>
       </ThemeProvider>
       </>

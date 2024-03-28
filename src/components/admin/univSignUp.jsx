@@ -11,7 +11,8 @@ import Container from '@mui/material/Container';
 import {Alert,InputAdornment,IconButton,Stack,Snackbar} from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-
+import { useSnackContext } from '../../SnackProvider';
+import { useFullScreenContext } from '../../fullScreenProvider';
 
 const UnivSignUp = () => {
   
@@ -20,15 +21,10 @@ const UnivSignUp = () => {
     
     const [mobile,setMobile]=useState("")
     const [helper,setHelper]=useState(false);
-
-    const [snack, setSnack]=useState({
-        open:false,
-        msg:"I love snacks",
-        severity:"info"
-    });
     
-  const handleClose=()=>{ setSnack({...snack,open:false})}
-
+    const {snack,setSnack}=useSnackContext();
+    const {fullScreen,setFullScreen}=useFullScreenContext();
+    
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -54,6 +50,10 @@ const UnivSignUp = () => {
       setSnack({open:true,msg:"password must contain at least one special character",severity:"error"})
       return
     }
+
+    setFullScreen(true);
+    setTimeout(()=>{setFullScreen(false)},10000);
+    
     console.log({
       email: data.get('email'),
       password: data.get('password'),
@@ -61,27 +61,13 @@ const UnivSignUp = () => {
       mobile:data.get('mobile'),
       password2:data.get('password2')
     });
+
   };
 
 
 
   return (
-    <Box sx={{minWidth:'100vw',mb:'100px'}}>
-        <Snackbar
-        anchorOrigin={{vertical:'top',horizontal:'center'}}
-        open={snack.open}
-        onClose={handleClose}
-        autoHideDuration={4500}
-        >
-          <Alert
-            onClose={handleClose}
-            severity={snack.severity}
-            variant="filled"
-            sx={{ width: '100%' }}
-            >
-            {snack.msg}
-            </Alert>
-        </Snackbar>  
+    <Box sx={{minWidth:'100%',mb:'100px',mx:'auto'}}>    
       <Container component="main" maxWidth="xs">
         <Box
           sx={{
@@ -92,10 +78,7 @@ const UnivSignUp = () => {
           }}
         >
           
-          <Typography component="h1" variant="h5">
-            University sign up
-          </Typography>
-
+      
             <Avatar
             alt="MBM_LOGO"
             src="../public/MBM_LOGO.png"
@@ -107,7 +90,7 @@ const UnivSignUp = () => {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            sign up
+           Institute sign up
           </Typography>
           </Stack>
 
