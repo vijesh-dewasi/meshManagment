@@ -6,6 +6,8 @@ import dayjs from 'dayjs';
 import Badge from '@mui/material/Badge';
 import { PickersDay } from '@mui/x-date-pickers/PickersDay';
 import { DayCalendarSkeleton } from '@mui/x-date-pickers/DayCalendarSkeleton';
+import { useTheme } from '@mui/material/styles';
+import Box from '@mui/material/Box';
 
 function getRandomNumber(min, max) {
   return Math.round(Math.random() * (max - min) + min);
@@ -33,16 +35,22 @@ function ServerDay(props) {
 
   const isSelected =
     !props.outsideCurrentMonth && highlightedDays.indexOf(props.day.date()) >= 0;
+  
+    const theme = useTheme();
+    const lightBlueColor = theme.palette.primary.light;
 
-  return (
-    <Badge
-      key={props.day.toString()}
-      overlap="circular"
-      badgeContent={isSelected ? '🌚' : undefined}
-    >
-      <PickersDay {...other} outsideCurrentMonth={outsideCurrentMonth} day={day} />
-    </Badge>
-  );
+    const boxStyle = {
+      borderRadius: '50%',
+      background: isSelected?'rgb(66, 165, 245)':lightBlueColor,
+      background: isSelected?'linear-gradient(90deg, rgba(66,165,245,0.9) 0%, rgba(175,216,225,1) 52%)':'none'
+    }
+    
+    return (
+      <Box style={boxStyle}>
+        <PickersDay {...other} outsideCurrentMonth={outsideCurrentMonth} day={day} />
+      </Box>
+    );
+
 }
 
 export default function DateCalendarServerRequest() {
