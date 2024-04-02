@@ -17,6 +17,9 @@ import DoneIcon from '@mui/icons-material/Done';
 import DeleteIcon from '@mui/icons-material/Delete';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { useEffect } from 'react';
+import { useFullScreenContext } from '../fullScreenProvider';
+import { useSnackContext } from '../SnackProvider';  
 
 function createData(mealTime,items,rating){
   return {mealTime,items,rating};
@@ -28,8 +31,48 @@ const rows = [
 ];
 
 
+
 const TodayMenu = () => {
   const [view,setView]=useState(true)
+
+  const {snack,setSnack}=useSnackContext();
+  const {fullScreen,setFullScreen}=useFullScreenContext();
+  
+  useEffect(()=>{
+        setFullScreen(true)
+        const formData={
+          mesh:3,
+          university:'MBM',
+          studentRoll:'21ucse5542'
+        }
+        const queryParams = new URLSearchParams(formData).toString();
+        
+        const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/todayMenu?"+queryParams;    
+            
+            fetch(url, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json;charset=UTF-8'
+              }
+            })
+            .then(response => {
+              if (!response.ok) 
+              throw new Error('Network response was not ok');
+              return response.json()
+            })
+            .then(data => {
+              console.log('Response:', data)
+              data.menu.forEach((x)=>{
+                rows.push(x)
+              })
+              setFullScreen(false)
+            })
+            .catch(error => {
+              console.error('Error:', error)
+              setFullScreen(false)
+            })
+  },[])
+
   return (
 
     <Stack sx={{minWidth:{xs:300}}} direction={'column'} alignItems={'center'}>

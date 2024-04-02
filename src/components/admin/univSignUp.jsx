@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState,useEffect} from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -20,7 +20,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
 const UnivSignUp = () => {
-  
+    let formData;
     const [showPassword,setShowPassword]=useState(false);
     const [showPassword2,setShowPassword2]=useState(false);
     
@@ -33,13 +33,97 @@ const UnivSignUp = () => {
     const [otp,setOtp]=useState(false);
     const [emailOtp,setEmailOtp]=useState("");
 
+    const[allowResend,setAllowResend]=useState(false)
+    const[resendSecs,setResendSecs]=useState(0)
+
+    useEffect(
+      ()=>{
+        if(allowResend==true)
+        return;
+        const id=setTimeout(()=>{
+           if(resendSecs>0){
+              setResendSecs(resendSecs-1)
+            }
+            else{
+              setAllowResend(true)
+            }   
+        },1000)
+        return ()=>clearTimeout(id);
+      },[resendSecs]
+      )
+
     const submitOtp=(e)=>{
       e.preventDefault();
-      console.log(e.target.emailOtp.value)
-      setOtp(false)
-    }
+      setFullScreen(true)
+      formData = {
+        ...formData,
+          otp:e.target.emailOtp.value,  
+      }
+      const queryParams = new URLSearchParams(formData).toString();
+      console.log(queryParams)
+
+          const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/submitUnivSignupOtp?"+queryParams;    
+          
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8'
+            }
+          })
+          .then(response => {
+            if (!response.ok) 
+            throw new Error('Network response was not ok');
+            return response.json()
+          })
+          .then(data => {
+            console.log('Response:', data)
+            setFullScreen(false)
+            setOtp(false)
+          })
+          .catch(error => {
+            console.error('Error:', error)
+            setFullScreen(false)
+            setOtp(false)
+          })
+      }
+
     const resendOtp=()=>{
-      return;
+
+      setFullScreen(true)        
+      const queryParams = new URLSearchParams(formData).toString();
+      console.log(queryParams)
+
+      const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/univsignupSendOtp?"+queryParams;    
+      console.log(url,import.meta.env.VITE_HOST,import.meta.env.VITE_PORT)
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      })
+      .then(response => {
+        if (!response.ok) 
+        throw new Error('Network response was not ok');
+        return response.json()
+      })
+      .then(data => {
+        console.log('Response:', data)
+        if(!otp)
+        setOtp(true)
+        setAllowResend(false)
+        setResendSecs(90)
+        setFullScreen(false)
+      })
+      .catch(error => {
+        console.error('Error:', error)
+        if(!otp)
+        setOtp(true)
+        setResendSecs(10)
+        setAllowResend(false)
+        setFullScreen(false)
+      })              
+
     }
 
   const handleSubmit = (event) => {
@@ -67,46 +151,15 @@ const UnivSignUp = () => {
       setSnack({open:true,msg:"password must contain at least one special character",severity:"error"})
       return
     }
-
-    setFullScreen(true);
-  
     
-    const formData={
+    formData={
       university_name:data.get('univName'),
       university_mobile:data.get('mobile'),
       university_email: data.get('email'),
       password: data.get('password')
     }
     
-    const queryParams = new URLSearchParams(formData).toString();
-    console.log(queryParams)
-    
-    const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/SignupUniversity?"+queryParams;    
-      console.log(url,import.meta.env.VITE_HOST,import.meta.env.VITE_PORT)
-
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8'
-      }
-    })
-    .then(response => {
-      if (!response.ok) 
-      throw new Error('Network response was not ok');
-      return response.json()
-    })
-    .then(data => {
-      console.log('Response:', data)
-      setFullScreen(false)
-      setOtp(true)
-    })
-    .catch(error => {
-      console.error('Error:', error)
-      setFullScreen(false)
-      setOtp(true)
-
-    })
-    
+    resendOtp();
   };
 
 
@@ -315,8 +368,12 @@ const UnivSignUp = () => {
                       }
                     }}
                 />
-                <Button onClick={(e)=>{resendOtp()}}>Resend Otp</Button>
-
+                <Button 
+                disabled={!allowResend} 
+                onClick={(e)=>{resendOtp()}}
+                >
+                {allowResend?"Resend Otp":`Resend otp in ${resendSecs} secs`}
+                </Button>
             </Stack>
         </DialogContent>
         <DialogActions>

@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useState,useEffect} from 'react'
 import {FormHelperText,Rating,Button,Stack,RadioGroup,Radio,FormControlLabel} from '@mui/material'
 import NoDrinksIcon from '@mui/icons-material/NoDrinks';
 import ThumbsUpDownIcon from '@mui/icons-material/ThumbsUpDown';
@@ -13,6 +13,8 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { useFullScreenContext } from '../fullScreenProvider';
+import { useSnackContext } from '../SnackProvider';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -28,6 +30,9 @@ const VisuallyHiddenInput = styled('input')({
 
 
 const ActionButtons = () => {
+
+    const {snack,setSnack}=useSnackContext();
+    const {fullScreen,setFullScreen}=useFullScreenContext();
 
     const [opt,setOpt]=useState(false);
     const [rate,setRate]=useState(false);
@@ -57,14 +62,39 @@ const ActionButtons = () => {
     }
     const submitOpt=(e)=>{
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
-        const formJson = Object.fromEntries(formData.entries());
-        console.log(formJson.reason,formJson.to,formJson.from);
+        const data = new FormData(e.currentTarget);
+        const formData={
+          reason:data.get('reason'),
+          to:data.get('to'),
+          from:data.get('from')
+        };
+        console.log(formData)
         
-        if(formJson.reason=="" || formJson.to=="" || formJson.from==""){
-          setHelper(1)
-          return
-        }
+        setFullScreen(true)
+
+        const queryParams = new URLSearchParams(formData).toString();
+        
+        const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/optOutRequest?"+queryParams;    
+            
+            fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json;charset=UTF-8'
+              }
+            })
+            .then(response => {
+              if (!response.ok) 
+              throw new Error('Network response was not ok');
+              return response.json()
+            })
+            .then(data => {
+              console.log('Response:', data)
+              setFullScreen(false)
+            })
+            .catch(error => {
+              console.error('Error:', error)
+              setFullScreen(false)
+            })
 
         closeOpt()
     }
@@ -74,21 +104,47 @@ const ActionButtons = () => {
         setRate(false);
         setFeed(true);
     }
-    const closeFeed= (e)=>{
-          setFeed(false);
-    }
+    const closeFeed= (e)=>{setFeed(false)}
 
     const submitFeed=(e)=>{
       e.preventDefault();
 
-      const formData = new FormData(e.currentTarget);
-      const formJson = Object.fromEntries(formData.entries());
-      console.log(formJson.day,formJson.mealTime,formJson.feedback,formJson.foodImgs);
-      
-      if(formJson.day=="" || formJson.mealTime=="" ||formJson.feedback==""){
-              setHelper(true)
-              return
-      }
+      const data = new FormData(e.currentTarget);
+
+        const formData={
+          day:data.get('day'),
+          mealTime:data.get('mealTime'),
+          feed:data.get('feedback'),
+          foodImgs:data.getAll('foodImgs')
+        };
+        console.log(formData)
+
+        setFullScreen(true)
+
+        const queryParams = new URLSearchParams(formData).toString();
+        
+        const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/feedBackSubmit?"+queryParams;    
+            
+            fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json;charset=UTF-8'
+              }
+            })
+            .then(response => {
+              if (!response.ok) 
+              throw new Error('Network response was not ok');
+              return response.json()
+            })
+            .then(data => {
+              console.log('Response:', data)
+              setFullScreen(false)
+            })
+            .catch(error => {
+              console.error('Error:', error)
+              setFullScreen(false)
+            })
+
       closeFeed()
     }
 
@@ -97,20 +153,43 @@ const ActionButtons = () => {
         setFeed(false);
         setRate(true);
     }
-    const closeRate= (e)=>{
-            setRate(false);
-    }
+    const closeRate= (e)=>{setRate(false)}
 
     const submitRate=(e)=>{
           e.preventDefault();
-          const formData = new FormData(e.currentTarget);
-          const formJson = Object.fromEntries(formData.entries());
-          console.log(formJson.day,formJson.mealTime,formJson.stars);
-          if(formJson.day=="" || formJson.mealTime=="" ||formJson.stars==""){
-              setHelper(true)
-              return
-          }
-          
+          const data = new FormData(e.currentTarget);
+          const formData={
+          stars:data.get('stars'),
+          day:data.get('day'),
+          mealTime:data.get('mealTime')
+          };
+
+        console.log(formData)
+        setFullScreen(true)
+
+        const queryParams = new URLSearchParams(formData).toString();
+        
+        const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/rateFood?"+queryParams;    
+            
+            fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json;charset=UTF-8'
+              }
+            })
+            .then(response => {
+              if (!response.ok) 
+              throw new Error('Network response was not ok');
+              return response.json()
+            })
+            .then(data => {
+              console.log('Response:', data)
+              setFullScreen(false)
+            })
+            .catch(error => {
+              console.error('Error:', error)
+              setFullScreen(false)
+            })
           setRate(false)
     }
 

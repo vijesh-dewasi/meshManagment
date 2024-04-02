@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -18,23 +18,63 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import AddIcon from '@mui/icons-material/Add';
-
-
-function createData(statTitle,value,type){
-  return {statTitle,value,type};
-}
-
-const rows = [
-  createData('opt out this month',4,'count'),
-  createData('Mesh Average rating this month',2,'star'),
-  createData('past meal rating',4,'star'),
-  createData('previous month optouts',[{month:'Jan',value:5},{month:'Feb',value:3},{month:'Mar',value:2}],'list')
-];
+import { useFullScreenContext } from '../fullScreenProvider';
+import { useSnackContext } from '../SnackProvider';
 
 
 
 const Stats = () => {
+
   const [view,setView]=useState(true)
+
+  function createData(statTitle,value,type){return {statTitle,value,type}}
+  
+  const rows = [
+    createData('opt out this month',4,'count'),
+    createData('Mesh Average rating this month',2,'star'),
+    createData('past meal rating',4,'star'),
+    createData('previous month optouts',[{month:'Jan',value:5},{month:'Feb',value:3},{month:'Mar',value:2}],'list')
+  ];
+
+  const {snack,setSnack}=useSnackContext();
+  const {fullScreen,setFullScreen}=useFullScreenContext();
+  
+  useEffect(()=>{
+        setFullScreen(true)
+        const formData={
+          mesh:3,
+          university:'MBM',
+          studentRoll:'21ucse5542'
+        }
+        const queryParams = new URLSearchParams(formData).toString();
+        
+        const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/getStats?"+queryParams;    
+            
+            fetch(url, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json;charset=UTF-8'
+              }
+            })
+            .then(response => {
+              if (!response.ok) 
+              throw new Error('Network response was not ok');
+              return response.json()
+            })
+            .then(data => {
+              console.log('Response:', data)
+              data.stats.forEach((x)=>{
+                rows.push(x)
+              })
+              setFullScreen(false)
+            })
+            .catch(error => {
+              console.error('Error:', error)
+              setFullScreen(false)
+            })
+  },[])
+
+
   return (
 
     <Stack sx={{minWidth:{xs:300}}} direction={'column'} alignItems={'center'}>

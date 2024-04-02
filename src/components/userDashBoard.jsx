@@ -37,24 +37,6 @@ const UserDashBoard = () => {
           </Grid> 
            
 
-          {/* 
-          
-          <Grid item xs={12} md={6} lg={3} alignSelf={'flex-start'}>
-          <FullMonth></FullMonth> 
-          </Grid>
-
-          <Grid container item xs={12} md={6} lg={1} alignSelf={'flex-start'} justifyContent={'center'}>
-          <ActionButtons></ActionButtons>
-          </Grid>
-
-          <Grid item xs={12} md={5} lg={4} alignSelf={'flex-start'}>
-          <TodayMenu></TodayMenu>
-          </Grid>
-
-          <Grid item xs={12} md={4} lg={3} alignSelf={'flex-start'}>
-          <Stats></Stats>
-          </Grid> */}
-
         </Grid>
         </>
   )
