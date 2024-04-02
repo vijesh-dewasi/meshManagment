@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState,useEffect} from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -23,10 +23,11 @@ import { useFullScreenContext } from '../fullScreenProvider';
 
 
 export default function SignUp() {
-    
+    let formData;
     const [showPassword,setShowPassword]=useState(false);
     const [showPassword2,setShowPassword2]=useState(false);
     const [mobile,setMobile]=useState("")
+    const [role,setRole]=useState("Student");
     const [helper,setHelper]=useState(false);
 
     const {snack,setSnack}=useSnackContext();
@@ -37,16 +38,100 @@ export default function SignUp() {
     // const [mobileOtp,setMobileOtp]=useState("");
     const [emailOtp,setEmailOtp]=useState("");
 
-    const submitOtp=(e)=>{
-      e.preventDefault();
-      console.log(e.target.mobileOtp.value,e.target.emailOtp.value)
-      setOtp(false)
-    }
-    const resendOtp=()=>{
-      return;
+    const[allowResend,setAllowResend]=useState(false)
+    const[resendSecs,setResendSecs]=useState(0)
+
+    useEffect(
+      ()=>{
+        if(allowResend==true)
+        return;
+        const id=setTimeout(()=>{
+           if(resendSecs>0){
+              setResendSecs(resendSecs-1)
+            }
+            else{
+              setAllowResend(true)
+            }   
+        },1000)
+        return ()=>clearTimeout(id);
+      },[resendSecs]
+      )
+
+      const submitOtp=(e)=>{
+        e.preventDefault();
+        setFullScreen(true)
+        formData = {
+          ...formData,
+            otp:e.target.emailOtp.value,  
+        }
+        const queryParams = new URLSearchParams(formData).toString();
+        console.log(queryParams)
+
+            const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/submitSignupOtp?"+queryParams;    
+            
+            fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json;charset=UTF-8'
+              }
+            })
+            .then(response => {
+              if (!response.ok) 
+              throw new Error('Network response was not ok');
+              return response.json()
+            })
+            .then(data => {
+              console.log('Response:', data)
+              setFullScreen(false)
+              setOtp(false)
+            })
+            .catch(error => {
+              console.error('Error:', error)
+              setFullScreen(false)
+              setOtp(false)
+            })
     }
 
-    const [role,setRole]=useState("Student");
+    const resendOtp=()=>{
+      setFullScreen(true)        
+     
+
+      const queryParams = new URLSearchParams(formData).toString();
+      console.log(queryParams)
+      
+      const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/signup?"+queryParams;    
+        console.log(url,import.meta.env.VITE_HOST,import.meta.env.VITE_PORT)
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      })
+      .then(response => {
+        if (!response.ok) 
+        throw new Error('Network response was not ok');
+        return response.json()
+      })
+      .then(data => {
+        console.log('Response:', data)
+        setFullScreen(false)
+        if(!otp)
+        setOtp(true)
+        setAllowResend(false)
+        setResendSecs(90)
+      })
+      .catch(error => {
+        console.error('Error:', error)
+        setFullScreen(false)
+        if(!otp)
+        setOtp(true)
+        setAllowResend(false)
+        setResendSecs(10)
+      })              
+
+    }
+
     
   
   const handleClose=()=>{
@@ -79,7 +164,8 @@ export default function SignUp() {
       return
     }
     setOtp(true)
-    console.log({
+    
+    formData={
       email: data.get('email'),
       password: data.get('password'),
       role:data.get('role'),
@@ -87,7 +173,9 @@ export default function SignUp() {
       rollNo:data.get('rollNo'),
       dob:data.get('dob'),
       password2:data.get('password2')
-    });
+    }
+   
+    resendOtp();
   };
 
 
@@ -345,7 +433,12 @@ export default function SignUp() {
                       }
                     }}
                 />
-                <Button onClick={(e)=>{resendOtp()}}>Resend Otp</Button>
+                <Button 
+                disabled={!allowResend} 
+                onClick={(e)=>{resendOtp()}}
+                >
+                {allowResend?"Resend Otp":`Resend otp in ${resendSecs} secs`}
+                </Button>
 
             </Stack>
         </DialogContent>

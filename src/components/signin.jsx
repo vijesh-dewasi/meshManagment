@@ -14,7 +14,8 @@ import Container from '@mui/material/Container';
 import {InputAdornment,IconButton,Select ,Menu,MenuItem,InputLabel,Stack} from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-
+import { useSnackContext } from '../SnackProvider';
+import { useFullScreenContext } from '../fullScreenProvider';
 
 export default function SignIn() {
 
@@ -23,15 +24,45 @@ export default function SignIn() {
     const handleMouseDownPassword = () => setShowPassword(!showPassword);
     const [mobile,setMobile]=useState("")
     const [helper,setHelper]=useState(false)
+    const {snack,setSnack}=useSnackContext();
+    const {fullScreen,setFullScreen}=useFullScreenContext();
+    
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    setFullScreen(true)
     const data = new FormData(event.currentTarget);
-    console.log({
+    const formData = {
       email: data.get('email'),
       password: data.get('password'),
       select:data.get('role')
-    });
+    }
+    const queryParams = new URLSearchParams(formData).toString();
+    console.log(queryParams)
+    
+    const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/login?"+queryParams;    
+    console.log(url,import.meta.env.VITE_HOST,import.meta.env.VITE_PORT)
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8'
+      }
+    })
+    .then(response => {
+      if (!response.ok) 
+      throw new Error('Network response was not ok');
+      return response.json()
+    })
+    .then(data => {
+      console.log('Response:', data)
+      setFullScreen(false)
+    })
+    .catch(error => {
+      console.error('Error:', error)
+      setFullScreen(false)
+    })
+
   };
 
   return (

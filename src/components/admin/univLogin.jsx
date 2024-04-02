@@ -36,7 +36,7 @@ export default function UnivLogin() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-  
+    setFullScreen(true)
     const formData={
       university_mobile:data.get('mobile'),
       university_email: data.get('email'),
