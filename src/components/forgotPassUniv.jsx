@@ -196,12 +196,12 @@ export default function ForgoPassUniv() {
             </Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
+                <Link href="/instsignup" variant="body2">
                     {"Sign Up"}
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/instlogin" variant="body2">
                   {"Sign in"}
                 </Link>
               </Grid>

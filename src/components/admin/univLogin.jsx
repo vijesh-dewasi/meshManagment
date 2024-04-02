@@ -173,12 +173,12 @@ export default function UnivLogin() {
             </Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
+                <Link href="/forgotpassinst" variant="body2">
                   Forgot password?
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/instsignup" variant="body2">
                   {"Sign Up"}
                 </Link>
               </Grid>
