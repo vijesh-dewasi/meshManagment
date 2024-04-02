@@ -3,8 +3,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -14,7 +12,8 @@ import Container from '@mui/material/Container';
 import {InputAdornment,IconButton,Select ,Menu,MenuItem,InputLabel,Stack} from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-
+import { useSnackContext } from '../../SnackProvider';
+import { useFullScreenContext } from '../../fullScreenProvider';
 
 
 //input validation on backend only
@@ -26,6 +25,10 @@ export default function UnivLogin() {
     const [email,setEmail]=useState("")
     const [helper,setHelper]=useState(false);
 
+    const {snack,setSnack}=useSnackContext();
+    const {fullScreen,setFullScreen}=useFullScreenContext();
+    
+
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = () => setShowPassword(!showPassword);
 
@@ -33,11 +36,39 @@ export default function UnivLogin() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-      select:data.get('mobile')
-    });
+  
+    const formData={
+      university_mobile:data.get('mobile'),
+      university_email: data.get('email'),
+      password: data.get('password')
+    }
+
+    const queryParams = new URLSearchParams(formData).toString();
+    console.log(queryParams)
+    
+    const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/SigninUniversity?"+queryParams;    
+      console.log(url,import.meta.env.VITE_HOST,import.meta.env.VITE_PORT)
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8'
+      }
+    })
+    .then(response => {
+      if (!response.ok) 
+      throw new Error('Network response was not ok');
+      return response.json()
+    })
+    .then(data => {
+      console.log('Response:', data)
+      setFullScreen(false)
+    })
+    .catch(error => {
+      console.error('Error:', error)
+      setFullScreen(false)
+    })
+
   };
 
   return (

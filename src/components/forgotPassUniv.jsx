@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState,useEffect} from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -16,7 +16,8 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
-
+import { useSnackContext } from '../SnackProvider';
+import { useFullScreenContext } from '../fullScreenProvider';
 
 
 export default function ForgoPassUniv() {
@@ -26,31 +27,118 @@ export default function ForgoPassUniv() {
     const handleMouseDownPassword = () => setShowPassword(!showPassword);
     const [helper,setHelper]=useState(false)
     
+    const {snack,setSnack}=useSnackContext();
+    const {fullScreen,setFullScreen}=useFullScreenContext();
+    
+    const[allowResend,setAllowResend]=useState(false)
+    const[resendSecs,setResendSecs]=useState(0)
+
+    useEffect(
+      ()=>{
+        if(allowResend==true)
+        return;
+        const id=setTimeout(()=>{
+           if(resendSecs>0){
+              setResendSecs(resendSecs-1)
+            }
+            else{
+              setAllowResend(true)
+            }   
+        },1000)
+        return ()=>clearTimeout(id);
+      },[resendSecs]
+      )
+    
+
     const [email,setEmail]=useState("")
     const[otpBox,setOtpBox]=useState(false)
     const [otp,setOtp]=useState("")
     
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email')
-    });
-    // get the otp sent 
-    setOtpBox(true)
-  };
+        const handleSubmit = (event) => {
+          event.preventDefault()
+          resendOtp()    
+        };
         
+
+        const resendOtp=()=>{
+          setFullScreen(true)        
+          const formData={
+          university_email: email
+          }
+
+          const queryParams = new URLSearchParams(formData).toString();
+          console.log(queryParams)
+          
+          const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/forgotPassUniversity?"+queryParams;    
+            console.log(url,import.meta.env.VITE_HOST,import.meta.env.VITE_PORT)
+
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8'
+            }
+          })
+          .then(response => {
+            if (!response.ok) 
+            throw new Error('Network response was not ok');
+            return response.json()
+          })
+          .then(data => {
+            console.log('Response:', data)
+            setFullScreen(false)
+            if(!otpBox)
+            setOtpBox(true)
+            setAllowResend(false)
+            setResendSecs(90)
+          })
+          .catch(error => {
+            console.error('Error:', error)
+            setFullScreen(false)
+            if(!otpBox)
+            setOtpBox(true)
+            setAllowResend(false)
+            setResendSecs(60)
+          })              
+
+        }
+
 
         const submitOtp=(e)=>{
             e.preventDefault();
-            //verify otp and change password
-            console.log(e.target.otp,e.target.email)
-            setOtpBox(false)
+            setFullScreen(true)
+            const formData = {
+                university_email:email,
+                otp:e.target.otp.value,
+                password:e.target.password.value
+            }
+            const queryParams = new URLSearchParams(formData).toString();
+            console.log(queryParams)
+    
+                const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/submitForgotPass?"+queryParams;    
+                
+                fetch(url, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json;charset=UTF-8'
+                  }
+                })
+                .then(response => {
+                  if (!response.ok) 
+                  throw new Error('Network response was not ok');
+                  return response.json()
+                })
+                .then(data => {
+                  console.log('Response:', data)
+                  setFullScreen(false)
+                  setOtpBox(false)
+                })
+                .catch(error => {
+                  console.error('Error:', error)
+                  setFullScreen(false)
+                  setOtpBox(false)
+                })
         }
-        const resendOtp=()=>{
-            // get the otp again
-            return;
-        }
+        
   
 
   return (
@@ -149,7 +237,7 @@ export default function ForgoPassUniv() {
                   id="password"
                   autoComplete="new-password"
                   helperText="At least 8 character long with at least one special character,numerical,capital letter"
-                  InputProps={{ // <-- This is where the toggle button is added.
+                  InputProps={{ 
                           endAdornment: (
                             <InputAdornment position="end">
                               <IconButton
@@ -184,7 +272,12 @@ export default function ForgoPassUniv() {
                       }
                     }}
                 />
-                <Button onClick={(e)=>{resendOtp()}}>Resend Otp</Button>
+                <Button 
+                disabled={!allowResend} 
+                onClick={(e)=>{resendOtp()}}
+                >
+                {allowResend?"Resend Otp":`Resend otp in ${resendSecs} secs`}
+                </Button>
             </Stack>
             
         </DialogContent>

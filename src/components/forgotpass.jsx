@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState,useEffect} from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -16,7 +16,8 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
-
+import { useSnackContext } from '../SnackProvider';
+import { useFullScreenContext } from '../fullScreenProvider';
 
 export default function ForgoPass(){
 
@@ -26,31 +27,120 @@ export default function ForgoPass(){
     const [helper,setHelper]=useState(false)
     
     const [email,setEmail]=useState("")
+    const[role,setRole]=useState("Student")
+
     const[otpBox,setOtpBox]=useState(false)
     const [otp,setOtp]=useState("")
     
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      select:data.get('role')
-    });
-    // get the otp sent 
-    setOtpBox(true)
-  };
-        
+    const {snack,setSnack}=useSnackContext();
+    const {fullScreen,setFullScreen}=useFullScreenContext();
+    
+    const[allowResend,setAllowResend]=useState(false)
+    const[resendSecs,setResendSecs]=useState(0)
 
-        const submitOtp=(e)=>{
-            e.preventDefault();
-            //verify otp and change password
-            console.log(e.target.otp,e.target.email)
-            setOtpBox(false)
+    useEffect(
+      ()=>{
+        if(allowResend==true)
+        return;
+        const id=setTimeout(()=>{
+           if(resendSecs>0){
+              setResendSecs(resendSecs-1)
+            }
+            else{
+              setAllowResend(true)
+            }   
+        },1000)
+        return ()=>clearTimeout(id);
+      },[resendSecs]
+      )
+        
+      const handleSubmit = (event) => {
+        event.preventDefault()
+        resendOtp()    
+      };
+      
+
+      const resendOtp=()=>{
+        setFullScreen(true)        
+        const formData={
+        university_email: email,
+        role:role
         }
-        const resendOtp=()=>{
-            // get the otp again
-            return;
-        }
+
+        const queryParams = new URLSearchParams(formData).toString();
+        console.log(queryParams)
+        
+        const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/forgotPassUniversity?"+queryParams;    
+          console.log(url,import.meta.env.VITE_HOST,import.meta.env.VITE_PORT)
+
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8'
+          }
+        })
+        .then(response => {
+          if (!response.ok) 
+          throw new Error('Network response was not ok');
+          return response.json()
+        })
+        .then(data => {
+          console.log('Response:', data)
+          setFullScreen(false)
+          if(!otpBox)
+          setOtpBox(true)
+          setAllowResend(false)
+          setResendSecs(90)
+        })
+        .catch(error => {
+          console.error('Error:', error)
+          setFullScreen(false)
+          if(!otpBox)
+          setOtpBox(true)
+          setAllowResend(false)
+          setResendSecs(90)
+        })              
+
+      }
+
+
+      const submitOtp=(e)=>{
+          e.preventDefault();
+          setFullScreen(true)
+          const formData = {
+              email:email,
+              otp:e.target.otp.value,
+              password:e.target.password.value,
+              role:role
+          }
+          const queryParams = new URLSearchParams(formData).toString();
+          console.log(queryParams)
+  
+              const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/submitForgotPass?"+queryParams;    
+              
+              fetch(url, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json;charset=UTF-8'
+                }
+              })
+              .then(response => {
+                if (!response.ok) 
+                throw new Error('Network response was not ok');
+                return response.json()
+              })
+              .then(data => {
+                console.log('Response:', data)
+                setFullScreen(false)
+                setOtpBox(false)
+              })
+              .catch(error => {
+                console.error('Error:', error)
+                setFullScreen(false)
+                setOtpBox(false)
+              })
+      }
+       
   
 
   return (
@@ -91,7 +181,8 @@ export default function ForgoPass(){
                 labelId="roleLabel"
                 id="role"
                 name='role'
-                defaultValue={"Student"}
+                value={role}
+                onChange={(e)=>setRole(e.target.value)}
             >
                 <MenuItem value={"Student"}>Student</MenuItem>
                 <MenuItem value={"Admin"}>warden</MenuItem>
@@ -198,7 +289,12 @@ export default function ForgoPass(){
                       }
                     }}
                 />
-                <Button onClick={(e)=>{resendOtp()}}>Resend Otp</Button>
+                <Button 
+                disabled={!allowResend} 
+                onClick={(e)=>{resendOtp()}}
+                >
+                {allowResend?"Resend Otp":`Resend otp in ${resendSecs} secs`}
+                </Button>
             </Stack>
             
         </DialogContent>

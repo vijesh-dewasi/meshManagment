@@ -45,8 +45,8 @@ function App() {
           <Route path="/instlogin" element={<UnivLogin />} />
           <Route path="/forgotpassinst" element={<ForgotPassUniv/>}/>
 
-          <Route path="/login" element={<SignIn/>} />
-          <Route path="/signup" element={<SignUp/>} />
+          <Route path="/login" element={<SignIn/>}/>
+          <Route path="/signup" element={<SignUp/>}/>
           <Route path="/forgotpass" element={<ForgotPass/>}/>
           
           <Route path="/userdashboard" element={<UserDashBoard />} />
