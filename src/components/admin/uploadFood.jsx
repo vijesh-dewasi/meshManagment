@@ -7,9 +7,15 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import {Chip,Stack,RadioGroup,Radio,FormControlLabel} from '@mui/material'
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import CloseIcon from '@mui/icons-material/Close';
+import { useFullScreenContext } from '../../fullScreenProvider';
+import { useSnackContext } from '../../SnackProvider';
+
+
+    
+
 
 const UploadFood = () => {
     
@@ -17,15 +23,53 @@ const UploadFood = () => {
     const [mealTime,setMealTime]=useState("morning");
     const [food,setFood]=useState([]);
     const [item,setItem]=useState("");
+    const {snack,setSnack}=useSnackContext();
+    const {fullScreen,setFullScreen}=useFullScreenContext();
+
 
     const closeMenu=()=>{
         setMenu(false);
     }
 
     const submitMenu=(e)=>{
+  
           e.preventDefault();
-          // console.log(mealTime,food);  
+          
+          const formData={
+            mealTime:mealTime,
+            food:food,
+            meshNo:7,
+            univ:'mbm'
+          };
+          console.log(formData)
+          
+          setFullScreen(true)
+  
+          const queryParams = new URLSearchParams(formData).toString();
+          
+          const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/uploadFood?"+queryParams;    
+              
+              fetch(url, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json;charset=UTF-8'
+                }
+              })
+              .then(response => {
+                if (!response.ok) 
+                throw new Error('Network response was not ok');
+                return response.json()
+              })
+              .then(data => {
+                console.log('Response:', data)
+                setFullScreen(false)
+              })
+              .catch(error => {
+                console.error('Error:', error)
+                setFullScreen(false)
+              })  
     }
+
     const addItem=(e)=>{
             if(item=="")
             return;
@@ -39,6 +83,46 @@ const UploadFood = () => {
             })
             setFood(newFood);
     }
+    
+   useEffect(()=>{
+     
+    const formData={
+      mealTime:mealTime,
+      food:food,
+      meshNo:7,
+      univ:'mbm'
+    };
+    console.log(formData)
+    
+    setFullScreen(true)
+
+    const queryParams = new URLSearchParams(formData).toString();
+    
+    const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/uploadFood?"+queryParams;    
+        
+        fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8'
+          }
+        })
+        .then(response => {
+          if (!response.ok) 
+          throw new Error('Network response was not ok');
+          return response.json()
+        })
+        .then(data => {
+          console.log('Response:', data)
+          setFood(data.foodList)
+          setFullScreen(false)
+        })
+        .catch(error => {
+          console.error('Error:', error)
+          setFullScreen(false)
+        })  
+   },[mealTime])
+   
+    
 
   return (
     <>

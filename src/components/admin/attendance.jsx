@@ -11,6 +11,8 @@ import { styled } from '@mui/material/styles';
 import DownloadIcon from '@mui/icons-material/Download';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import PersonIcon from '@mui/icons-material/Person';
+import {useFullScreenContext} from '../../fullScreenProvider.jsx';
+import {useSnackContext} from '../../SnackProvider.jsx';
 
 const Attendance = () => {
     
@@ -29,23 +31,119 @@ const Attendance = () => {
     const [option,setOption] =useState('none');
     const [fromMonth,setFromMonth]=useState(1);
     const [toMonth,setToMonth]=useState(12);
+    
+    const {snack,setSnack}=useSnackContext();
+    const {fullScreen,setFullScreen}=useFullScreenContext();
 
-    const rollNo="21UCSE87"
-    const fullName="John Doe"
-    const branch="CSE"
-    const mobile="1234567890"
-    const optouts=5
-    const toPayMeals=60-5
+
+
+    const [studentDetails,setStudentDetails]=useState(
+      {fullName:'',
+       rollNo:'',
+       branch:'',
+       mobile:'',
+       optouts:'',
+       toPayMeals:''})
     
     const changeOption=(s)=>{setOption(s)}
 
     const submitAttendanceOne=(e)=>{
       e.preventDefault();
+      setFullScreen(true)
       // use roll no to fetch the data from the server for attendance details
+      const formData={
+        univesityId:'mbm',
+        meshNo:1,
+        rollNo:e.target.rollNo.value,
+        fromMonth:e.target.fromMonth.value,
+        toMonth:e.target.toMonth.value
+      }
+      const queryParams = new URLSearchParams(formData).toString();
+      const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/attendanceOne?"+queryParams;    
+            
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      })
+      .then(response => {
+        if (!response.ok) 
+        throw new Error('Network response was not ok');
+        return response.json()
+      })
+      .then(data => {
+        setStudentDetails({
+          fullName:data.fullName,
+          rollNo:data.rollNo,
+          mobile:data.mobile,
+          branch:data.branch,
+          optouts:data.optouts,
+          toPayMeals:data.toPayMeals
+        })
+        setFullScreen(false)
+      })
+      .catch(error => {
+        console.error('Error:', error)
+        setStudentDetails({
+          ...studentDetails,
+          fullName:"Doe",
+          branch:"CE",
+          mobile:"1256789045",
+          optouts:4,
+          toPayMeals:160-5
+        })
+        setFullScreen(false)
+      })
       setOption('viewAttendanceOne')
     }
+
     const submitAttendanceBulk = (e)=>{
       e.preventDefault();
+      
+      setFullScreen(true)
+
+      const formData={
+        univesityId:'mbm',
+        meshNo:1,
+        fromMonth:e.target.fromMonth.value,
+        toMonth:e.target.toMonth.value
+      }
+      const queryParams = new URLSearchParams(formData).toString();
+      const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/attendanceBulk?"+queryParams;    
+            
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      })
+      .then(response => {
+        if (!response.ok) 
+        throw new Error('Network response was not ok');
+        const header = response.headers.get('Content-Disposition');
+        const parts = header.split(';');
+        const filename = parts[1].split('=')[1].replaceAll("\"", "");
+        const blob = response.blob();
+        return {blob,filename};
+      })
+      .then(data => {
+            const {blob,filename}=data;
+            if (blob != null) {
+              var url = window.URL.createObjectURL(blob);
+              var a = document.createElement('a');
+              a.href = url;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+          }
+      })
+      .catch(error => {
+        console.error('Error:', error)
+        setFullScreen(false)
+      })
+
       console.log("files downloaded")
       setOption('none')
     }
@@ -152,12 +250,14 @@ const Attendance = () => {
                 <TextField
                     inputProps={{ maxLength: 25}}
                     margin="dense"
-                    id="rollNO"
-                    name="rollNO"
+                    id="rollNo"
+                    name="rollNo"
                     label="Roll No"
                     type="text"
                     fullWidth
                     variant="standard"
+                    value={studentDetails.rollNo}
+                    onChange={(e)=>{setStudentDetails({...studentDetails,rollNo:e.target.value})}}
                     required
                 />
                  <TextField
@@ -218,7 +318,8 @@ const Attendance = () => {
                     fullWidth
                     variant="filled"
                     disabled
-                    defaultValue={fullName}
+                    value={studentDetails.fullName}
+                    
                 />
 
                 <TextField
@@ -231,7 +332,8 @@ const Attendance = () => {
                     fullWidth
                     variant="filled"
                     disabled
-                    defaultValue={rollNo}   
+                    value={studentDetails.rollNo}
+                    
                 />
 
                 <TextField
@@ -243,7 +345,8 @@ const Attendance = () => {
                     fullWidth
                     variant="filled"
                     disabled
-                    defaultValue={optouts}   
+                    value={studentDetails.optouts}
+                    
                 />
                 
 
@@ -257,7 +360,8 @@ const Attendance = () => {
                     fullWidth
                     variant="filled"
                     disabled
-                    defaultValue={branch}
+                    value={studentDetails.branch}
+                    
                 />
 
                 <TextField
@@ -267,7 +371,7 @@ const Attendance = () => {
                     label="Mobile"
                     type="text"
                     fullWidth
-                    value={mobile}
+                    value={studentDetails.mobile}
                     variant="filled"
                     disabled
                     inputProps={{ maxLength:10,minLength:10}}
@@ -282,7 +386,7 @@ const Attendance = () => {
                     fullWidth
                     variant="filled"
                     disabled
-                    value={toPayMeals}
+                    value={studentDetails.toPayMeals}
                 />
 
             </Stack>

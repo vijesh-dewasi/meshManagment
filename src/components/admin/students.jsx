@@ -19,6 +19,8 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import PersonRemoveAlt1Icon from '@mui/icons-material/PersonRemoveAlt1';
 import dayjs from 'dayjs'
 import DownloadIcon from '@mui/icons-material/Download';
+import { useFullScreenContext } from '../../fullScreenProvider';
+import { useSnackContext } from '../../SnackProvider';
 
 
 const Students = () => {
@@ -48,6 +50,10 @@ const Students = () => {
     const [mobile,setMobile]=useState("")
     const [email,setEmail]=useState("")
 
+    const {snack,setSnack}=useSnackContext();
+    const {fullScreen,setFullScreen}=useFullScreenContext();
+
+
     const closeStudent=()=>{setStudent(false)} 
     
     const changeOption=(s)=>{
@@ -57,60 +63,330 @@ const Students = () => {
 
     const submitAddOne=(e)=>{
       e.preventDefault();
-      console.log(e.target.fullName.value)
-      console.log(e.target.rollNO.value)
-      console.log(e.target.dob.value)
-      console.log(e.target.nfc.value)
-      console.log(e.target.branch.value)
-      console.log(e.target.mobile.value)
-      console.log(e.target.email.value)
+      const formData={
+        fullName:e.target.fullName.value,
+        rollNo:e.target.rollNO.value,
+        dob:e.target.dob.value,
+        nfc:e.target.nfc.value,
+        branch:e.target.branch.value,
+        mobile:mobile,
+        email:email
+      }
+        setFullScreen(true)
+
+        const queryParams = new URLSearchParams(formData).toString();
+        
+        const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/addStudentOne?"+queryParams;    
+            
+            fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json;charset=UTF-8'
+              }
+            })
+            .then(response => {
+              if (!response.ok) 
+              throw new Error('Network response was not ok');
+              return response.json()
+            })
+            .then(data => {
+              console.log('Response:', data)
+              setFullScreen(false)
+            })
+            .catch(error => {
+              console.error('Error:', error)
+              setFullScreen(false)
+            })
       setOption('none')
     }
+
     const submitAddBulk = (e)=>{
-      e.preventDefault();
-      console.log(e.target.studentList.files[0])
-      setOption('none')
+        e.preventDefault();
+        const file=e.target.studentList.files[0]
+        let formData = new FormData()
+        formData.append('file', file)
+        setFullScreen(true)
+        const params={
+          meshNo:1,
+          univesityId:'mbm'
+        }
+        const queryParams = new URLSearchParams(params).toString();
+        const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/addStudentBulk?"+queryParams;    
+            
+            fetch(url, {
+              method: 'POST',
+              body: formData
+            })
+            .then(response => {
+              if (!response.ok) 
+              throw new Error('Network response was not ok');
+              return response.json()
+            })
+            .then(data => {
+              console.log('Response:', data)
+              setSnack(
+                {
+                  open:true,
+                  msg:"file uploaded successfully",
+                  severity:"success"
+                }
+                )
+              setFullScreen(false)
+            })
+            .catch(error => {
+              setSnack(
+                {
+                  open:true,
+                  msg:"some error occured while uploading the file",
+                  severity:"success"
+                }
+                )
+              console.error('Error:', error)
+              setFullScreen(false)
+            })
+      
+             setOption('none')
     }
 
     const submitDeleteOne=(e)=>{
       e.preventDefault();
-      console.log(e.target.rollNO.value)
+      const formData={
+        univesityId:'mbm',
+        rollNo:e.target.rollNO.value
+      }
+        setFullScreen(true)
+
+        const queryParams = new URLSearchParams(formData).toString();
+        
+        
+        const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/deleteStudentOne?"+queryParams;    
+            
+            fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json;charset=UTF-8'
+              }
+            })
+            .then(response => {
+              if (!response.ok) 
+              throw new Error('Network response was not ok');
+              return response.json()
+            })
+            .then(data => {
+              console.log('Response:', data)
+              setFullScreen(false)
+            })
+            .catch(error => {
+              console.error('Error:', error)
+              setFullScreen(false)
+            })
       setOption('none')
     }
+
     const submitDeleteAll=(e)=>{
       e.preventDefault();
-      console.log("delete all")
+      setFullScreen(true)
+      const formData={
+        univesityId:'mbm',
+        meshNo:1
+      }
+      const queryParams = new URLSearchParams(formData).toString();
+      const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/deleteStudentAll?"+queryParams;    
+            
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      })
+      .then(response => {
+        if (!response.ok) 
+        throw new Error('Network response was not ok');
+        return response.json()
+      })
+      .then(data => {
+        console.log('Response:', data)
+        setFullScreen(false)
+      })
+      .catch(error => {
+        console.error('Error:', error)
+        setFullScreen(false)
+      })
+
       setOption('none')
     }
 
     const submitEdit=(e)=>{
       e.preventDefault();
-      console.log(e.target.rollNO.value)
+      console.log(e.target.rollNo.value)
       // fetc the date and update the values of the external variables
+
+      setFullScreen(true)
+      const formData={
+        univesityId:'mbm',
+        meshNo:1,
+        rollNo:e.target.rollNo.value
+      }
+      const queryParams = new URLSearchParams(formData).toString();
+      const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/studentDetails?"+queryParams;    
+            
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      })
+      .then(response => {
+        if (!response.ok) 
+        throw new Error('Network response was not ok');
+        return response.json()
+      })
+      .then(data => {
+        console.log('Response:', data)
+        fullName=data.fullName
+        rollNo=data.rollNo
+        Dob=data.dob
+        nfc=data.nfc
+        branch=data.branch
+        setMobile(data.mobile)
+        setEmail(data.email)
+        setFullScreen(false)
+      })
+      .catch(error => {
+        console.error('Error:', error)
+        setFullScreen(false)
+      })
+
       setOption('editWithRoll')
     }
 
     const submitEditWithRoll=(e)=>{
       e.preventDefault();
-      console.log(e.target.fullName.value)
-      console.log(e.target.rollNo.value)
-      console.log(e.target.dob.value)
-      console.log(e.target.nfc.value)
-      console.log(e.target.branch.value)
-      console.log(e.target.mobile.value)
-      console.log(e.target.email.value)
+    
+      setFullScreen(true)
+      const formData={
+        univesityId:'mbm',
+        meshNo:1,
+        fullName:e.target.fullName.value,
+        rollNo:e.target.rollNo.value,
+        dob:e.target.dob.value,
+        nfc:e.target.nfc.value,
+        branch:e.target.branch.value,
+        mobile:e.target.mobile.value,
+        email:e.target.email.value
+      }
+      const queryParams = new URLSearchParams(formData).toString();
+      const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/submitEditWithRoll?"+queryParams;    
+            
+      fetch(url, {
+        method: 'UPDATE',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      })
+      .then(response => {
+        if (!response.ok) 
+        throw new Error('Network response was not ok');
+        return response.json()
+      })
+      .then(data => {
+        console.log('Response:', data)
+        setFullScreen(false)
+      })
+      .catch(error => {
+        console.error('Error:', error)
+        setFullScreen(false)
+      })
+
       setOption('none')
     }
 
     
     const submitViewOne=(e)=>{
       e.preventDefault();
-      console.log(e.target.rollNO.value)
+      console.log(e.target.rollNo.value)
       // fetch the data and update the values of the external variables to be viewed    
+      setFullScreen(true)
+      const formData={
+        univesityId:'mbm',
+        meshNo:1,
+        rollNo:e.target.rollNo.value
+      }
+      const queryParams = new URLSearchParams(formData).toString();
+      const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/studentDetails?"+queryParams;    
+            
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      })
+      .then(response => {
+        if (!response.ok) 
+        throw new Error('Network response was not ok');
+        return response.json()
+      })
+      .then(data => {
+        fullName=data.fullName
+        rollNo=data.rollNo
+        Dob=data.dob
+        nfc=data.nfc
+        branch=data.branch
+        setMobile(data.mobile)
+        setEmail(data.email)
+        setFullScreen(false)
+      })
+      .catch(error => {
+        console.error('Error:', error)
+        setFullScreen(false)
+      })
       setOption('viewOneRoll')
     }
+
     const downloadAllView=()=>{
       console.log("download all")
+      setFullScreen(true)
+
+      const formData={
+        univesityId:'mbm',
+        meshNo:1
+      }
+      const queryParams = new URLSearchParams(formData).toString();
+      const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/viewAllStudentDetails?"+queryParams;    
+            
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      })
+      .then(response => {
+        if (!response.ok) 
+        throw new Error('Network response was not ok');
+        const header = response.headers.get('Content-Disposition');
+        const parts = header.split(';');
+        const filename = parts[1].split('=')[1].replaceAll("\"", "");
+        const blob = response.blob();
+        return {blob,filename};
+      })
+      .then(data => {
+            const {blob,filename}=data;
+            if (blob != null) {
+              var url = window.URL.createObjectURL(blob);
+              var a = document.createElement('a');
+              a.href = url;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+          }
+      })
+      .catch(error => {
+        console.error('Error:', error)
+        setFullScreen(false)
+      })
+
+
       setOption('none')
     }
 
@@ -451,8 +727,8 @@ const Students = () => {
         <TextField
                     inputProps={{ maxLength: 25}}
                     margin="dense"
-                    id="rollNO"
-                    name="rollNO"
+                    id="rollNo"
+                    name="rollNo"
                     label="Roll No"
                     type="text"
                     fullWidth
@@ -630,8 +906,8 @@ const Students = () => {
         <TextField
                     inputProps={{ maxLength: 25}}
                     margin="dense"
-                    id="rollNO"
-                    name="rollNO"
+                    id="rollNo"
+                    name="rollNo"
                     label="Roll No"
                     type="text"
                     fullWidth

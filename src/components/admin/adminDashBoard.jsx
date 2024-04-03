@@ -10,6 +10,7 @@ import Attendance from './attendance.jsx';
 import OptOut from './optOut.jsx';
 
 const AdminDashBoard = () => {
+       const role='warden'
   return (
     <>
     <NavBar role={'admin'}/>
@@ -25,7 +26,7 @@ const AdminDashBoard = () => {
 
           </Grid>
           
-          <Grid item xs={12} sm md={6} lg={6}  justifySelf='center' alignSelf={'center'}>
+          <Grid item xs={12} sm md={6} lg={6}  justifySelf='center' alignSelf={'flex-start'}>
           
           <Stack direction={'column'} gap={2}>
           <Stack px={{xs:6}} justifyContent='center' direction={{xs:'column',md:'row'}} gap={{lg:2,xs:2,md:0.5}}>

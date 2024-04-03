@@ -7,21 +7,76 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import NoDrinksIcon from '@mui/icons-material/NoDrinks';
+import { useFullScreenContext } from '../../fullScreenProvider';
+import { useSnackContext } from '../../SnackProvider';
+
 
 const OptOut = () => {
 
-    const optOuts=7;
+    const [optOuts,setOptOuts]=useState(5);
     const[opt, setOpt] = useState(false)
-
+    const {snack,setSnack}=useSnackContext();
+    const {fullScreen,setFullScreen}=useFullScreenContext();
+  
+    
     const submitOpt=(e)=>{
-      e.preventDefault();
-      console.log(e.target.optOuts.value)
-      setOpt(false)
+       e.preventDefault();
+        const data = new FormData(e.currentTarget);
+        const formData={
+          newOptOuts:data.get('optOuts'),
+          meshNo:'4'
+        };
+        console.log(formData)
+        
+        setFullScreen(true)
+
+        const queryParams = new URLSearchParams(formData).toString();
+        
+        const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/optOutChanger?"+queryParams;    
+            
+            fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json;charset=UTF-8'
+              }
+            })
+            .then(response => {
+              if (!response.ok) 
+              throw new Error('Network response was not ok');
+              return response.json()
+            })
+            .then(data => {
+              console.log('Response:', data)
+              setFullScreen(false)
+            })
+            .catch(error => {
+              console.error('Error:', error)
+              setFullScreen(false)
+            })
     }
     
     const changeOpt=()=>{
-        setOpt(true)
-        //fetch the current optouts from the server
+      setFullScreen(true)
+      setOpt(true)
+      const url='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/optouts"
+
+      fetch(url,{
+        method:'GET',
+        headers:{
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      }).then(response=>{
+        if(!response.ok) throw new Error('Network response was not ok')
+        return response.json()
+      }).then(data=>{
+        console.log('Response:',data)
+        optOuts=data.optOuts
+        setFullScreen(false)
+      }).catch(error=>{
+        setOptOuts(10)
+        console.error('Error:',error)
+        setFullScreen(false)
+      })
     }
 
   return (

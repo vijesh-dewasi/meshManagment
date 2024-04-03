@@ -1,0 +1,17 @@
+  .slideBar::-webkit-scrollbar {
+      width: 0.3em;
+      z-index:100;
+    }
+
+  .slideBar::-webkit-scrollbar-track {
+    box-shadow: none;
+  }
+   
+  .slideBar::-webkit-scrollbar-thumb {
+    background-color: #a7d3f7;
+    border-radius: 25em; 
+  }
+
+  .slideBar::-webkit-scrollbar-button{
+    display: none;
+  }
