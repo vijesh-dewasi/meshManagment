@@ -70,7 +70,7 @@ const OptOut = () => {
         return response.json()
       }).then(data=>{
         console.log('Response:',data)
-        optOuts=data.optOuts
+        setOptOuts(data.optOuts)
         setFullScreen(false)
       }).catch(error=>{
         setOptOuts(10)

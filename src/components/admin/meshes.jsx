@@ -17,11 +17,18 @@ import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import PersonRemoveAlt1Icon from '@mui/icons-material/PersonRemoveAlt1';
 import DownloadIcon from '@mui/icons-material/Download';
+import { useFullScreenContext } from '../../fullScreenProvider';
+import { useSnackContext } from '../../SnackProvider';
 
 
 
 const Meshes = () => {
-  
+    
+    
+    const {snack,setSnack}=useSnackContext();
+    const {fullScreen,setFullScreen}=useFullScreenContext();
+
+
     const VisuallyHiddenInput = styled('input')({
         clip: 'rect(0 0 0 0)',
         clipPath: 'inset(50%)',
@@ -40,12 +47,16 @@ const Meshes = () => {
 
         const [helper,setHelper]=useState(false);
   
-        const wardenName="mahesh meena"
-        const wardenEmail="xyz@mdkjf.com"
-        const meshNo="123"
+        
 
-        const managerName="vijesh meena"
-        const managerEmail="hudsf@dkjfd.com"
+        const [meshDetails, setMeshDetails] = useState({
+          wardenName:'',
+          wardenEmail:'',
+          wardenMobile:"",
+          meshNo:'',
+          managerName:'',
+          managerEmail:'',
+        })
     
         const [wardenMobile,setWardenMobile]=useState("")
         const [managerMobile,setManagerMobile]=useState("")
@@ -59,48 +70,246 @@ const Meshes = () => {
     
         const submitAddOne=(e)=>{
           e.preventDefault();
-          console.log(e.target.wardenName.value)
-          console.log(e.target.wardenEmail.value)
-          console.log(e.target.wardenMobile.value)
-          console.log(e.target.managerName.value)
-          console.log(e.target.managerEmail.value)
-          console.log(e.target.managerMobile.value)
+          const formData={
+            wardenName:e.target.wardenName.value,
+            wardenEmail:e.target.wardenEmail.value,
+            wardenMobile:e.target.wardenMobile.value,
+            managerName:e.target.managerName.value,
+            managerEmail:e.target.managerEmail.value,
+            managerMobile:e.target.managerMobile.value
+          }
+            setFullScreen(true)
+    
+            const queryParams = new URLSearchParams(formData).toString();
+            
+            const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/addMeshOne?"+queryParams;    
+                
+                fetch(url, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json;charset=UTF-8'
+                  }
+                })
+                .then(response => {
+                  if (!response.ok) 
+                  throw new Error('Network response was not ok');
+                  return response.json()
+                })
+                .then(data => {
+                  console.log('Response:', data)
+                  setFullScreen(false)
+                })
+                .catch(error => {
+                  console.error('Error:', error)
+                  setFullScreen(false)
+                })
           setOption('none')
         }
+
         const submitAddBulk = (e)=>{
           e.preventDefault();
           console.log(e.target.meshList.files[0])
+
+        const file=e.target.meshList.files[0]
+        let formData = new FormData()
+        formData.append('file', file)
+        setFullScreen(true)
+        const params={
+          univesityId:'mbm',
+        }
+        const queryParams = new URLSearchParams(params).toString();
+        const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/addMeshBulk?"+queryParams;    
+            
+            fetch(url, {
+              method: 'POST',
+              body: formData
+            })
+            .then(response => {
+              if (!response.ok) 
+              throw new Error('Network response was not ok');
+              return response.json()
+            })
+            .then(data => {
+              console.log('Response:', data)
+              setSnack(
+                {
+                  open:true,
+                  msg:"file uploaded successfully",
+                  severity:"success"
+                }
+                )
+              setFullScreen(false)
+            })
+            .catch(error => {
+              setSnack(
+                {
+                  open:true,
+                  msg:"some error occured while uploading the file",
+                  severity:"error"
+                }
+                )
+              console.error('Error:', error)
+              setFullScreen(false)
+            })
+
           setOption('none')
         }
     
         const submitDeleteOne=(e)=>{
           e.preventDefault();
           console.log(e.target.wardenEmail.value)
-          setOption('none')
+          
+          const formData={
+            univesityId:'mbm',
+            wardenEmail:e.target.wardenEmail.value
+          }
+            setFullScreen(true)
+    
+            const queryParams = new URLSearchParams(formData).toString();
+            
+            const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/deleteMeshOne?"+queryParams;    
+                
+                fetch(url, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json;charset=UTF-8'
+                  }
+                })
+                .then(response => {
+                  if (!response.ok) 
+                  throw new Error('Network response was not ok');
+                  return response.json()
+                })
+                .then(data => {
+                  console.log('Response:', data)
+                  setFullScreen(false)
+                })
+                .catch(error => {
+                  console.error('Error:', error)
+                  setFullScreen(false)
+                })
+
+                setOption('none')
         }
 
         const submitDeleteAll=(e)=>{
-          e.preventDefault();
-          console.log("delete all")
+                e.preventDefault();
+                setFullScreen(true)
+            const formData={
+              univesityId:'mbm',
+            }
+            const queryParams = new URLSearchParams(formData).toString();
+            const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/deleteMeshAll?"+queryParams;    
+                  
+            fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json;charset=UTF-8'
+              }
+            })
+            .then(response => {
+              if (!response.ok) 
+              throw new Error('Network response was not ok');
+              return response.json()
+            })
+            .then(data => {
+              console.log('Response:', data)
+              setFullScreen(false)
+            })
+            .catch(error => {
+              console.error('Error:', error)
+              setFullScreen(false)
+            })
           setOption('none')
         }
     
         const submitEdit=(e)=>{
           e.preventDefault();
+          setFullScreen(true)
           console.log(e.target.wardenEmail.value)
           // fetch the date and update the values of the external variables
           // warden email and mobile
+        
+          const formData={
+            univesityId:'mbm',
+            wardenData:choice=='meshNo'?e.target.meshNo.value:e.target.wardenEmail.value
+          }
+          const queryParams = new URLSearchParams(formData).toString();
+          const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/meshDetails?"+queryParams;    
+                
+          fetch(url, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8'
+            }
+          })
+          .then(response => {
+            if (!response.ok) 
+            throw new Error('Network response was not ok');
+            return response.json()
+          })
+          .then(data => {
+            console.log('Response:', data)
+            setMeshDetails(data)
+            //set mobile state seprately
+            setFullScreen(false)
+          })
+          .catch(error => {
+            console.error('Error:', error)
+            setMeshDetails({
+              wardenName:'hemant',
+              wardenEmail:'hemnat@fmd.com',
+              meshNo:'1',
+              managerName:'pemant',
+              managerEmail:'peamant@fjd.com'
+            })
+            setManagerMobile('8772345633')
+            setWardenMobile('7772317633')
+            setFullScreen(false)
+            
+          })
+
           setOption('editWithWardenEmail')
         }
     
         const submitEditWithWardenEmail=(e)=>{
           e.preventDefault();
-          console.log(e.target.wardenName.value)
-          console.log(e.target.wardenEmail.value)
-          console.log(e.target.wardenMobile.value)
-          console.log(e.target.managerName.value)
-          console.log(e.target.managerEmail.value)
-          console.log(e.target.managerMobile.value)
+          setFullScreen(true)
+          const formData={
+            univesityId:'mbm',
+            meshNo:mesh,
+            wardenName:e.target.wardenName.value,
+            wardenEmail:e.target.wardenEmail.value,
+            wardenMobile:wardenMobile,
+            managerName:e.target.managerName.value,
+            managerEmail:e.target.managerEmail.value,
+            managerMobile:managerMobile
+          }
+
+          const queryParams = new URLSearchParams(formData).toString();
+          const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/submitEditMesh?"+queryParams;    
+                
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8'
+            }
+          })
+          .then(response => {
+            if (!response.ok) 
+            throw new Error('Network response was not ok');
+            return response.json()
+          })
+          .then(data => {
+            console.log('Response:', data)
+            setMeshDetails(data)
+            setFullScreen(false)
+          })
+          .catch(error => {
+            console.error('Error:', error)
+            setFullScreen(false)
+          })
+            
           setOption('none')
         }
     
@@ -108,19 +317,102 @@ const Meshes = () => {
         const submitViewOne=(e)=>{
           e.preventDefault();
           console.log(e.target.wardenEmail.value)
-          // fetch the data and update the values of the external variables to be viewed    
+          // fetch the data and update the values of the external variables to be viewed
+          setFullScreen(true)
+          const formData={
+            univesityId:'mbm',
+            wardenData:choice=='meshNo'?e.target.meshNo.value:e.target.wardenEmail.value
+          }
+          const queryParams = new URLSearchParams(formData).toString();
+          const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/getMeshData?"+queryParams;    
+                
+          fetch(url, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8'
+            }
+          })
+          .then(response => {
+            if (!response.ok) 
+            throw new Error('Network response was not ok');
+            return response.json()
+          })
+          .then(data => {
+            console.log('Response:', data)
+            setMeshDetails(data)
+            setWardenMobile(data.wardenMobile)
+            setManagerMobile(data.managerMobile)
+            setFullScreen(false)
+          })
+          .catch(error => {
+            console.error('Error:', error)
+            setMeshDetails({
+              wardenName:'hemant',
+              wardenEmail:'hemnat@fmd.com',
+              meshNo:'1',
+              managerName:'pemant',
+              managerEmail:'peamant@fjd.com' 
+            })
+              setManagerMobile('8772345633')
+              setWardenMobile('7772317633')
+            setFullScreen(false)
+          })
+          
           setOption('viewOneWardenMail')
         }
-        const downloadAllView=()=>{
-          console.log("download all")
-          setOption('none')
-        }
-    
+        
         const submitViewWithEmail=(e)=>{
           e.preventDefault();
           console.log("view with wardens email")
           setOption('none')
         }
+
+        const downloadAllView=()=>{
+          console.log("download all")
+
+          setFullScreen(true)
+
+          const formData={
+            univesityId:'mbm',
+          }
+          const queryParams = new URLSearchParams(formData).toString();
+          const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/viewAllMeshesDetails?"+queryParams;    
+                
+          fetch(url, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8'
+            }
+          })
+          .then(response => {
+            if (!response.ok) 
+            throw new Error('Network response was not ok');
+            const header = response.headers.get('Content-Disposition');
+            const parts = header.split(';');
+            const filename = parts[1].split('=')[1].replaceAll("\"", "");
+            const blob = response.blob();
+            return {blob,filename};
+          })
+          .then(data => {
+                const {blob,filename}=data;
+                if (blob != null) {
+                  var url = window.URL.createObjectURL(blob);
+                  var a = document.createElement('a');
+                  a.href = url;
+                  a.download = filename;
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+              }
+          })
+          .catch(error => {
+            console.error('Error:', error)
+            setFullScreen(false)
+          })
+
+          setOption('none')
+        }
+    
         
       return (
       <>
@@ -540,7 +832,7 @@ const Meshes = () => {
                         type="text"
                         fullWidth
                         variant="standard"
-                        value={meshNo}
+                        value={meshDetails.meshNo}
                         disabled
                 />
 
@@ -553,7 +845,7 @@ const Meshes = () => {
                         type="text"
                         fullWidth
                         variant="standard"
-                        value={wardenName}
+                        value={meshDetails.wardenName}
                         required
                     />
     
@@ -566,7 +858,7 @@ const Meshes = () => {
                         type="email"
                         fullWidth
                         variant="standard"
-                        value={wardenEmail}
+                        value={meshDetails.wardenEmail}
                         required
                     />
 
@@ -604,7 +896,7 @@ const Meshes = () => {
                         fullWidth
                         variant="standard"
                         required
-                        value={managerName}
+                        value={meshDetails.managerName}
                     />
     
                     <TextField
@@ -616,7 +908,7 @@ const Meshes = () => {
                         type="email"
                         fullWidth
                         variant="standard"
-                        value={managerEmail}
+                        value={meshDetails.managerEmail}
                         required
                     />
     
@@ -761,7 +1053,7 @@ const Meshes = () => {
                         type="text"
                         fullWidth
                         variant="standard"
-                        value={meshNo}
+                        value={meshDetails.meshNo}
                         disabled
                 /> 
 
@@ -774,7 +1066,7 @@ const Meshes = () => {
                         type="text"
                         fullWidth
                         variant="standard"
-                        value={wardenName}
+                        value={meshDetails.wardenName}
                         disabled
                     />
     
@@ -787,7 +1079,7 @@ const Meshes = () => {
                         type="email"
                         fullWidth
                         variant="standard"
-                        value={wardenEmail}
+                        value={meshDetails.wardenEmail}
                         disabled
                     />
 
@@ -825,7 +1117,7 @@ const Meshes = () => {
                         fullWidth
                         variant="standard"
                         disabled
-                        value={managerName}
+                        value={meshDetails.managerName}
                     />
     
                     <TextField
@@ -837,7 +1129,7 @@ const Meshes = () => {
                         type="email"
                         fullWidth
                         variant="standard"
-                        value={managerEmail}
+                        value={meshDetails.managerEmail}
                         disabled
                     />
     

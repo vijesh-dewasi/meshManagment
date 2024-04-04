@@ -41,11 +41,15 @@ const Students = () => {
     
     const [helper,setHelper]=useState(false);
 
-    const fullName="mahesh meena"
-    const rollNo="21UCSE87"
-    const Dob=new Date();
-    const branch="cse"
-    const nfc="1234567890"
+   
+
+    const [studentDetails,setStudentDetails]=useState({
+        fullName:"mahesh meena",
+        rollNo:"21UCSE87",
+        Dob:dayjs(new Date()),
+        branch:"cse",
+        nfc:"1234567890"
+    })
 
     const [mobile,setMobile]=useState("")
     const [email,setEmail]=useState("")
@@ -243,11 +247,7 @@ const Students = () => {
       })
       .then(data => {
         console.log('Response:', data)
-        fullName=data.fullName
-        rollNo=data.rollNo
-        Dob=data.dob
-        nfc=data.nfc
-        branch=data.branch
+        setStudentDetails(data);
         setMobile(data.mobile)
         setEmail(data.email)
         setFullScreen(false)
@@ -327,11 +327,7 @@ const Students = () => {
         return response.json()
       })
       .then(data => {
-        fullName=data.fullName
-        rollNo=data.rollNo
-        Dob=data.dob
-        nfc=data.nfc
-        branch=data.branch
+        setStudentDetails(data);
         setMobile(data.mobile)
         setEmail(data.email)
         setFullScreen(false)
@@ -768,8 +764,8 @@ const Students = () => {
                     type="text"
                     fullWidth
                     variant="standard"
-                    defaultValue={fullName}
-                    
+                    defaultValue={studentDetails.fullName}
+                    onChange={(e)=>{setStudentDetails({...studentDetails,fullName:e.target.value})}}
                 />
 
                 <TextField
@@ -781,7 +777,8 @@ const Students = () => {
                     type="text"
                     fullWidth
                     variant="standard"
-                    defaultValue={rollNo}   
+                    defaultValue={studentDetails.rollNo} 
+                    onChange={(e)=>{setStudentDetails({...studentDetails,rollNo:e.target.value})}}  
                 />
 
                 <TextField
@@ -792,7 +789,8 @@ const Students = () => {
                     type="text"
                     fullWidth
                     variant="standard"
-                    defaultValue={nfc}   
+                    defaultValue={studentDetails.nfc}
+                    onChange={(e)=>{setStudentDetails({...studentDetails,nfc:e.target.value})}}   
                 />
                 
                 <DatePicker 
@@ -802,7 +800,11 @@ const Students = () => {
                   name="dob"
                   disableFuture
                   label="dob"
-                  defaultValue={dayjs(Dob)}
+                  defaultValue={studentDetails.Dob}
+                  onChange={(e)=>{
+                    console.log(e.target.value)
+                    setStudentDetails({...studentDetails,Dob:e.target.value})
+                    }}
                   />
 
                   <TextField
@@ -814,7 +816,8 @@ const Students = () => {
                     type="text"
                     fullWidth
                     variant="standard"
-                    defaultValue={branch}
+                    defaultValue={studentDetails.branch}
+                    onChange={(e)=>{setStudentDetails({...studentDetails,branch:e.target.value})}}
                 />
 
                 <TextField
@@ -947,7 +950,7 @@ const Students = () => {
                     fullWidth
                     variant="filled"
                     disabled
-                    defaultValue={fullName}
+                    defaultValue={studentDetails.fullName}
                 />
 
                 <TextField
@@ -960,7 +963,7 @@ const Students = () => {
                     fullWidth
                     variant="filled"
                     disabled
-                    defaultValue={rollNo}   
+                    defaultValue={studentDetails.rollNo}   
                 />
 
                 <TextField
@@ -972,7 +975,7 @@ const Students = () => {
                     fullWidth
                     variant="filled"
                     disabled
-                    defaultValue={nfc}   
+                    defaultValue={studentDetails.nfc}   
                 />
                 
                 <DatePicker 
@@ -982,7 +985,7 @@ const Students = () => {
                   name="dob"
                   disableFuture
                   label="dob"
-                  defaultValue={dayjs(Dob)}
+                  defaultValue={dayjs(studentDetails.Dob)}
                   disabled
                   />
 
@@ -996,7 +999,7 @@ const Students = () => {
                     fullWidth
                     variant="filled"
                     disabled
-                    defaultValue={branch}
+                    defaultValue={studentDetails.branch}
                 />
 
                 <TextField
