@@ -93,9 +93,9 @@ const UnivSignUp = () => {
       const queryParams = new URLSearchParams(formData).toString();
       console.log(queryParams)
 
-      const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/univsignupSendOtp?"+queryParams;    
+      const url ='http://192.168.228.13:8080/UnifiedMess/SignupUniversity?'+queryParams;    
       console.log(url,import.meta.env.VITE_HOST,import.meta.env.VITE_PORT)
-
+    
       fetch(url, {
         method: 'POST',
         headers: {

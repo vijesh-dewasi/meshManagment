@@ -51,7 +51,9 @@ export default function DateCalendarServerRequest() {
         const mealsOnDay=ind>=0?totalMeals[ind]:0;
   
         const theme = useTheme();
-        const lightBlueColor = theme.palette.primary.light;
+        const darkColor = theme.palette.primary.dark;
+        const lightColor = theme.palette.primary.light;
+        const main = theme.palette.primary.main;
 
         const backGradient=mealsOnDay==2?
         'linear-gradient(90deg, rgba(66,165,245,0.9) 100%, rgba(175,216,225,1) 100%, rgba(175,216,225,1) 100%)':

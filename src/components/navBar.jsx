@@ -19,6 +19,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useFullScreenContext } from '../fullScreenProvider';
 import { useSnackContext } from '../SnackProvider';
+import DarkModeBtn from './darkMode';
 
 
 function Profile(props){
@@ -470,6 +471,9 @@ function NavBar(props){
   const {snack,setSnack}=useSnackContext();
   const {fullScreen,setFullScreen}=useFullScreenContext();
 
+  
+  
+  
  
   const handleLogout =(e)=>{
      
@@ -510,6 +514,8 @@ function NavBar(props){
   const handleClick = (event) =>{setAnchorEl(event.currentTarget)}
   const handleClose = () => {setAnchorEl(null)}
 
+  
+
   return (
     <AppBar elevation={6} sx={{
         position:'fixed'
@@ -525,7 +531,8 @@ function NavBar(props){
           <Avatar sx={{ width:{xs:60,md:80}, height:{xs:60,md:80} }} alt="MBM LOGO" src="/public/MBM_LOGO.png" />
           </Grid>
 
-          <Grid container direction="row" gap={2} item xs justifyContent="flex-end">
+          <Grid container direction="row" gap={2} item xs alignItems={'center'} justifyContent="flex-end">
+          <Grid item >
             <Tooltip title="Account settings">
             <IconButton
               onClick={handleClick}
@@ -537,6 +544,14 @@ function NavBar(props){
               <Avatar sx={{ width:50, height:50}}>M</Avatar>
             </IconButton>
             </Tooltip>
+          </Grid>
+
+          <Grid item>
+            <Tooltip title="Toggle Color Mode">
+               <DarkModeBtn></DarkModeBtn>
+            </Tooltip>
+          </Grid>
+          
           </Grid>
 
       </Grid>
