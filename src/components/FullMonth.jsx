@@ -51,13 +51,10 @@ export default function DateCalendarServerRequest() {
         const mealsOnDay=ind>=0?totalMeals[ind]:0;
   
         const theme = useTheme();
-        const darkColor = theme.palette.primary.dark;
-        const lightColor = theme.palette.primary.light;
-        const main = theme.palette.primary.main;
-
+    
         const backGradient=mealsOnDay==2?
-        'linear-gradient(90deg, rgba(66,165,245,0.9) 100%, rgba(175,216,225,1) 100%, rgba(175,216,225,1) 100%)':
-        'linear-gradient(90deg, rgba(66,165,245,0.9) 47%, rgba(175,216,225,1) 49%, rgba(175,216,225,1) 57%)';
+        'linear-gradient(90deg, rgba(33,239,159,1) 26%, rgba(255,255,255,1) 57%)':
+        'linear-gradient(90deg, rgba(33,239,159,1) 100%, rgba(255,255,255,1) 100%)';
         
         
         const boxStyle = {

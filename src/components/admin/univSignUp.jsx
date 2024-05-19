@@ -20,7 +20,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
 const UnivSignUp = () => {
-    let formData;
+    const [formData,setFormData] = useState({});
     const [showPassword,setShowPassword]=useState(false);
     const [showPassword2,setShowPassword2]=useState(false);
     
@@ -55,25 +55,19 @@ const UnivSignUp = () => {
     const submitOtp=(e)=>{
       e.preventDefault();
       setFullScreen(true)
-      formData = {
-        ...formData,
-          otp:e.target.emailOtp.value,  
-      }
+
       const queryParams = new URLSearchParams(formData).toString();
       console.log(queryParams)
 
-          const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/submitUnivSignupOtp?"+queryParams;    
-          
+          const url ='http://'+import.meta.env.VITE_HOST + ":" + import.meta.env.VITE_PORT + "/UnifiedMess/OTPValidationUniversity?"+queryParams;    
           fetch(url, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json;charset=UTF-8'
-            }
+            credentials:'include',
           })
           .then(response => {
             if (!response.ok) 
             throw new Error('Network response was not ok');
-            return response.json()
+            return response.text();
           })
           .then(data => {
             console.log('Response:', data)
@@ -93,19 +87,16 @@ const UnivSignUp = () => {
       const queryParams = new URLSearchParams(formData).toString();
       console.log(queryParams)
 
-      const url ='http://192.168.228.13:8080/UnifiedMess/SignupUniversity?'+queryParams;    
-      console.log(url,import.meta.env.VITE_HOST,import.meta.env.VITE_PORT)
+      // const url ='http://192.168.74.13:8080/UnifiedMess/SignupUniversity?'+queryParams;
+      const url ='http://'+ import.meta.env.VITE_HOST +':'+ import.meta.env.VITE_PORT+'/UnifiedMess/SignupUniversity?'+queryParams;    
     
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8'
-        }
+      fetch(url,{
+        method: 'POST'
       })
       .then(response => {
         if (!response.ok) 
         throw new Error('Network response was not ok');
-        return response.json()
+        return response.text();
       })
       .then(data => {
         console.log('Response:', data)
@@ -152,12 +143,14 @@ const UnivSignUp = () => {
       return
     }
     
-    formData={
+    setFormData({
       university_name:data.get('univName'),
       university_mobile:data.get('mobile'),
       university_email: data.get('email'),
-      password: data.get('password')
-    }
+      password: data.get('password'),
+      confirm_password: data.get('password'),
+      location: 'Jodhpur'
+    })
     
     resendOtp();
   };
@@ -361,6 +354,10 @@ const UnivSignUp = () => {
                       const num=e.target.value;
                       if(/^\d+$/.test(num)){
                       setEmailOtp(num)
+                      setFormData({
+                        ...formData,
+                          otp:num
+                      })
                       }
                       else{
                       setEmailOtp("")
