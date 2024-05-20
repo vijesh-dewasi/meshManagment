@@ -19,27 +19,28 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useSnackContext } from '../SnackProvider';
 import { useFullScreenContext } from '../fullScreenProvider';
-
+import { useNavigate } from 'react-router-dom';
 
 
 export default function SignUp() {
-    let formData;
+    
     const [showPassword,setShowPassword]=useState(false);
     const [showPassword2,setShowPassword2]=useState(false);
     const [mobile,setMobile]=useState("")
     const [role,setRole]=useState("Student");
     const [helper,setHelper]=useState(false);
+    const [formData,setFormData] = useState({});
 
     const {snack,setSnack}=useSnackContext();
     const {fullScreen,setFullScreen}=useFullScreenContext();
     
 
     const [otp,setOtp]=useState(false);
-    // const [mobileOtp,setMobileOtp]=useState("");
     const [emailOtp,setEmailOtp]=useState("");
 
     const[allowResend,setAllowResend]=useState(false)
     const[resendSecs,setResendSecs]=useState(0)
+    const navigate=useNavigate();
 
     useEffect(
       ()=>{
@@ -60,36 +61,72 @@ export default function SignUp() {
       const submitOtp=(e)=>{
         e.preventDefault();
         setFullScreen(true)
-        formData = {
-          ...formData,
-            otp:e.target.emailOtp.value,  
-        }
+        
         const queryParams = new URLSearchParams(formData).toString();
         console.log(queryParams)
 
-            const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/submitSignupOtp?"+queryParams;    
             
-            fetch(url, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json;charset=UTF-8'
+        const otpCopy=formData.otp.trim();
+
+                
+             if(e.target.emailOtp.value==otpCopy){  
+              
+                setOtp(false)
+                setSnack(
+                  {
+                    open:true,
+                    msg:"your otp was correct now you can login",
+                    severity:"success"
+                  }   
+                )
+      
+                const queryParams = new URLSearchParams(formData).toString();
+
+                let roler = (formData.role=='Student'?"OTPValidationStudent?":"OTPValidationWarden?")
+                if(formData.role=='Manager')
+                roler="OTPValidationManager?" 
+
+                const url ='http://'+import.meta.env.VITE_HOST + ":" + import.meta.env.VITE_PORT + "/UnifiedMess/"+roler+queryParams;    
+                
+                fetch(url, {
+                  method: 'POST'
+                })
+                .then(response => {
+                  if (!response.ok) 
+                  throw new Error('Network response was not ok');
+                  return response.text();
+                })
+                .then(data => {
+                  console.log('Response:', data)
+                  setFullScreen(false)
+                  navigate('/login')
+                  setOtp(false)
+                })
+                .catch(error => {
+                  console.error('Error:', error)
+                  setFullScreen(false)
+                  setSnack({
+                    open:true,
+                    msg:"some error occured retry signup",
+                    severity:"error"
+                  })
+                  setOtp(false)
+                })
+      
+      
               }
-            })
-            .then(response => {
-              if (!response.ok) 
-              throw new Error('Network response was not ok');
-              return response.json()
-            })
-            .then(data => {
-              console.log('Response:', data)
+              else{
+                setSnack(
+                  {
+                    open:true,
+                    msg:"your otp was incorrect pls retry",
+                    severity:"error"
+                  }   
+                )
+              }
               setFullScreen(false)
-              setOtp(false)
-            })
-            .catch(error => {
-              console.error('Error:', error)
-              setFullScreen(false)
-              setOtp(false)
-            })
+            
+
     }
 
     const resendOtp=()=>{
@@ -99,22 +136,28 @@ export default function SignUp() {
       const queryParams = new URLSearchParams(formData).toString();
       console.log(queryParams)
       
-      const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/signup?"+queryParams;    
-        console.log(url,import.meta.env.VITE_HOST,import.meta.env.VITE_PORT)
+
+
+        let roler= (formData.role=='Student'?"SignUpStudent?":"SignUpWarden?")
+        if(formData.role=='Manager')
+        roler="SignUpManager?"
+                
+        const url ='http://'+import.meta.env.VITE_HOST + ":" + import.meta.env.VITE_PORT + "/UnifiedMess/"+roler+queryParams;    
+        console.log(url)
 
       fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8'
-        }
       })
       .then(response => {
-        if (!response.ok) 
-        throw new Error('Network response was not ok');
-        return response.json()
+        if (!response.ok || response.status==404){
+          throw new Error('Network response was not ok');
+          return
+        } 
+        return response.text()
       })
       .then(data => {
         console.log('Response:', data)
+        setFormData({...formData,otp:data});
         setFullScreen(false)
         if(!otp)
         setOtp(true)
@@ -123,9 +166,12 @@ export default function SignUp() {
       })
       .catch(error => {
         console.error('Error:', error)
+        // setSnack({
+        //   open:true,
+        //   msg:"you are not registered contact your warden",
+        //   severity:'error'
+        // })
         setFullScreen(false)
-        if(!otp)
-        setOtp(true)
         setAllowResend(false)
         setResendSecs(10)
       })              
@@ -163,19 +209,31 @@ export default function SignUp() {
       setSnack({open:true,msg:"password must contain at least one special character",severity:"error"})
       return
     }
-    setOtp(true)
+  
     
-    formData={
-      email: data.get('email'),
-      password: data.get('password'),
-      role:data.get('role'),
-      mobile:data.get('mobile'),
-      rollNo:data.get('rollNo'),
-      dob:data.get('dob'),
-      password2:data.get('password2')
+    if(data.get('role')=='Student'){
+      setFormData({
+        email: data.get('email'),
+        password: data.get('password'),
+        mobile:data.get('mobile'),
+        roll_no:data.get('rollNo'),
+        dob:data.get('dob'),
+        confirm_password:data.get('password2'),
+        role:data.get('role')
+      })
     }
-   
+    else{
+      setFormData({
+        email: data.get('email'),
+        password: data.get('password'),
+        mobile:data.get('mobile'),
+        confirm_password:data.get('password2'),
+        role:data.get('role')
+      })
+    }
+      
     resendOtp();
+    // resendOtp();
   };
 
 
@@ -225,7 +283,7 @@ export default function SignUp() {
                 onChange={(e)=>(setRole(e.target.value))}
               >
                 <MenuItem value={"Student"}>Student</MenuItem>
-                <MenuItem value={"Admin"}>Admin</MenuItem>
+                <MenuItem value={"Warden"}>Warden</MenuItem>
                 <MenuItem value={"Manager"}>Manager</MenuItem>
               </Select>  
             </Grid>
@@ -387,29 +445,6 @@ export default function SignUp() {
 
         <Stack direction={'column'} gap={2}>
 
-                {/* <TextField               
-                    inputProps={{ maxLength:6,minLength:6}}
-                    margin="dense"
-                    id="mobileOtp"
-                    name="mobileOtp"
-                    label="otp on mobile"
-                    type="text"
-                    fullWidth
-                    helperText={helper?"pls enter number only":""}
-                    variant="standard"
-                    value={mobileOtp}
-                    required
-                    onChange={(e)=>{
-                      const num=e.target.value;
-                      if(/^\d+$/.test(num)){
-                      setMobileOtp(num)
-                      }
-                      else{
-                      setMobileOtp("")
-                      setHelper(true);
-                      }
-                    }}
-                /> */}
                 <TextField               
                     inputProps={{ maxLength:6,minLength:6}}
                     margin="dense"

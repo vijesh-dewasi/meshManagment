@@ -25,6 +25,8 @@ import {
 } from 'react-router-dom'
 
 import { ColorModeContext } from './colorModeContext';
+import { AuthProvider } from './authContextProvider.jsx';
+
 
 function App() {
 
@@ -92,7 +94,8 @@ function App() {
       <LocalizationProvider dateAdapter={AdapterDayjs}>
       <FullScreenProvider>
       <SnackProvider>
-      
+      <AuthProvider>
+
 
       <AlertSnack></AlertSnack>
       <FullScreenLoad></FullScreenLoad>
@@ -118,6 +121,7 @@ function App() {
         </Routes>
       </Router> 
 
+      </AuthProvider>
       </SnackProvider>
       </FullScreenProvider>
       </LocalizationProvider>

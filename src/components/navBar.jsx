@@ -20,18 +20,24 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useFullScreenContext } from '../fullScreenProvider';
 import { useSnackContext } from '../SnackProvider';
 import DarkModeBtn from './darkMode';
-
+import { useAuthContext } from '../authContextProvider';
+import { useNavigate } from 'react-router-dom';
 
 function Profile(props){
   
-  const {profile,setProfile,role}=props;
+  const {auth,setAuth}=useAuthContext();
+  const navigate=useNavigate();
+  
+  const {profile,setProfile}=props;
+  const role = auth.role?auth.role:props.role;
 
   const [edit,setEdit]=useState(false)
   const {snack,setSnack}=useSnackContext()
   const {fullScreen,setFullScreen}=useFullScreenContext()
 
-  const [mobile,setMobile]=useState("9772316533")
-  const [email,setEmail]=useState("mohitdewasi420@gmail.com")
+
+  const [mobile,setMobile]=useState(auth.mobile?auth.mobile:"977231554")
+  const [email,setEmail]=useState(auth.email?auth.email:'gvijeshkumar@gmail.com')
   
   const [profileDetails,setProfileDetails]=useState({}) 
   const [originalDetails,setOriginalDetails]=useState({})
@@ -75,18 +81,16 @@ function Profile(props){
                 .catch(error => {
                   console.error('Error:', error)
                   const data={
-                    fullName:"mahesh meena",
+                    fullName:auth.name?auth.name:"Vijesh Kumar",
                     role:role,
-                    university:"MBM",
-                    branch:"cse",
-                    session:"2023-2024",
-                    rollNo:"21UCSE87",
-                    mesh_id:"ghij",
+                    university:auth.university_name?auth.university_name:'mbm',
+                    branch:auth.branch?auth.branch:"cse",
+                    rollNo:auth.rollno?auth.rollno:"21UCSE87",
+                    mesh_id:auth.messId?auth.messId:"ghij",
                     Dob:new Date()
                   };
                   setProfileDetails(data)
-                  setMobile("5472316533")
-                  setEmail("dfkjd@kdjf.com")
+                  
                   setOriginalDetails({...data,mobile:mobile,email:email})
                   setFullScreen(false)
                 })
@@ -118,7 +122,7 @@ function Profile(props){
           }}>
 
           {edit?<DialogContentText>
-           {profileDetails.role==='student'?"you can edit Mobile Email only for other you can contact the warden" :'you can edit your mobile and email'}
+           {profileDetails.role==='Student'?"you can edit Mobile Email only for other you can contact the warden" :'you can edit your mobile and email'}
           </DialogContentText>:<></>}
 
         <Stack direction={'column'} gap={2}>
@@ -128,7 +132,7 @@ function Profile(props){
                     margin="dense"
                     id="fullName"
                     name="fullName"
-                    label={profileDetails.role==='univ'?'Insttitute Name':"Full Name"}
+                    label={profileDetails.role==='University'?'Insttitute Name':"Full Name"}
                     type="text"
                     fullWidth
                     variant="filled"
@@ -136,7 +140,7 @@ function Profile(props){
                     disabled
                 />
 
-                {profileDetails.role==='student'?
+                {profileDetails.role==='Student'?
                 <>
                 
 
@@ -166,18 +170,7 @@ function Profile(props){
                     disabled
                 />
 
-                <TextField
-                    inputProps={{ maxLength:10}}
-                    margin="dense"
-                    id="session"
-                    name="session"
-                    label="session"
-                    type="text"
-                    fullWidth
-                    variant="filled"
-                    defaultValue={profileDetails.session}
-                    disabled
-                />
+                
 
                   <TextField
                     inputProps={{ maxLength: 35}}
@@ -244,9 +237,10 @@ function Profile(props){
         </DialogContent>
         <DialogActions>
           
-          {edit?
+          {/* {edit?
           <Button key={'profileSubmitBtn'} type="submit">Submit</Button>:
-          <Button key={'profileEditBtn'} onClick={()=>{setEdit(true)}}>Edit</Button>}
+          <Button key={'profileEditBtn'} onClick={()=>{setEdit(true)}}>Edit</Button>} */}
+
           <Button key={'profileCancelBtn'} 
                   onClick={
                       ()=>{
@@ -461,6 +455,8 @@ function OtpBox(props){
 function NavBar(props){
   
   const role=props.role;
+  const {auth,setAuth}=useAuthContext();
+  const navigate=useNavigate();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -472,21 +468,19 @@ function NavBar(props){
   const {fullScreen,setFullScreen}=useFullScreenContext();
 
   
-  
-  
- 
+
   const handleLogout =(e)=>{
      
-    const formData={
-      mobile:'9565512345',
-      email:'jdfh@kdk.com',
-      role:role
-    }
+      const formData={
+        mobile:auth.mobile,
+        email:auth.email,
+        role:role
+      }
       setFullScreen(true)
 
       const queryParams = new URLSearchParams(formData).toString();
       
-      const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/logout?"+queryParams;    
+      const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/logOUT?"+queryParams;    
           
           fetch(url, {
             method: 'POST',
@@ -505,9 +499,11 @@ function NavBar(props){
           })
           .catch(error => {
             console.error('Error:', error)
+            setAuth({});
+            navigate('/login')
             setFullScreen(false)
           })
-
+          
           return;  
   }
   const handleProfile =(e)=>{setProfile(true)}
@@ -584,7 +580,7 @@ function NavBar(props){
         <Divider />
         
 
-        <MenuItem onClick={handleLogout}>
+        <MenuItem onClick={()=>{handleLogout()}}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>

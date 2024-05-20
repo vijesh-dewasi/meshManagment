@@ -50,7 +50,7 @@ const ActionButtons = () => {
     threeDayBack.setDate(threeDayBack.getDate()-3);
     
     const [from,setFrom]=useState(dayjs(tomorrow))
-    const [mealTime,setMealTime]=useState('morning')
+    const [mealTime,setMealTime]=useState('lunch')
 
     const openOpt=(e)=>{
         setFeed(false);
@@ -316,8 +316,8 @@ const ActionButtons = () => {
                     onChange={(e)=>(setMealTime(e.target.value))}
                     required
                   >
-                    <FormControlLabel value="morning" control={<Radio />} label="Morning" />
-                    <FormControlLabel value="evening" control={<Radio />} label="Evening" />
+                    <FormControlLabel value="lunch" control={<Radio />} label="lunch" />
+                    <FormControlLabel value="dinner" control={<Radio />} label="dinner" />
                   </RadioGroup>
 
                   <Rating
@@ -378,8 +378,8 @@ const ActionButtons = () => {
                     onChange={(e)=>(setMealTime(e.target.value))}
                     required
                   >
-                    <FormControlLabel value="morning" control={<Radio />} label="Morning" />
-                    <FormControlLabel value="evening" control={<Radio />} label="Evening" />
+                    <FormControlLabel value="lunch" control={<Radio />} label="lunch" />
+                    <FormControlLabel value="dinner" control={<Radio />} label="dinner" />
                   </RadioGroup>
 
                   <TextField

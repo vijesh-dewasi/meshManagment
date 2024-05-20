@@ -5,13 +5,20 @@ import TodayMenu from './todayMenu.jsx';
 import Stats from './stats.jsx';
 import ActionButtons from './actionButtons.jsx';
 import { Grid} from '@mui/material';
+import { useAuthContext } from '../authContextProvider';
 
 const UserDashBoard = () => {
 
+  const {auth,setAuth}=useAuthContext();
+
+  if(!auth.email)
+    auth.email='maheshme2002@gmail.com'
+  if(!auth.messId)
+    auth.messId='MBMUJ'
 
   return (
         <>
-        <NavBar role={'student'}></NavBar>
+        <NavBar role={'Student'}></NavBar>
 
         <Grid sx={{my:15,minWidth:'100%'}} container gap={2} justifyContent={'center'} alignItems={'center'}>
 
@@ -29,11 +36,11 @@ const UserDashBoard = () => {
 
 
            <Grid item xs={12} md={6} lg={3} alignSelf={'flex-start'}>
-          <TodayMenu></TodayMenu>
+          <TodayMenu mesh={auth.meshId}></TodayMenu>
           </Grid>
 
           <Grid item xs={12} md={6} lg={4} alignSelf={'flex-start'}>
-          <Stats></Stats>
+          <Stats student_Email={auth.email} mess={auth.messId} role='Student'></Stats>
           </Grid> 
            
 

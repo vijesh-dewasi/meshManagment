@@ -14,11 +14,13 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useSnackContext } from '../../SnackProvider';
 import { useFullScreenContext } from '../../fullScreenProvider';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '../../authContextProvider';
 
-
-//input validation on backend only
-//in future might be see it on frontend as well
 export default function UnivLogin() {
+
+    const navigate= useNavigate();
+    const {auth,setAuth}=useAuthContext()
 
     const [showPassword,setShowPassword]=useState(false);
     const [mobile,setMobile]=useState("")
@@ -38,7 +40,6 @@ export default function UnivLogin() {
     const data = new FormData(event.currentTarget);
     setFullScreen(true)
     const formData={
-      university_mobile:data.get('mobile'),
       university_email: data.get('email'),
       password: data.get('password')
     }
@@ -46,14 +47,11 @@ export default function UnivLogin() {
     const queryParams = new URLSearchParams(formData).toString();
     console.log(queryParams)
     
-    const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/SigninUniversity?"+queryParams;    
+    const url ='http://'+ import.meta.env.VITE_HOST+ ":" + import.meta.env.VITE_PORT + "/UnifiedMess/SignInUniversity?" +queryParams;    
       console.log(url,import.meta.env.VITE_HOST,import.meta.env.VITE_PORT)
 
     fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8'
-      }
+      method: 'POST'
     })
     .then(response => {
       if (!response.ok) 
@@ -62,10 +60,25 @@ export default function UnivLogin() {
     })
     .then(data => {
       console.log('Response:', data)
+      setSnack(
+        {
+          open:true,
+          msg:"login successful",
+          severity:"success"
+      })
       setFullScreen(false)
+      console.log(data);
+      setAuth({email:formData.university_email,role:"University",name:data.name,mobile:data.universityMobile});
+      navigate('/univdashboard')
     })
     .catch(error => {
       console.error('Error:', error)
+      setSnack(
+        {
+          open:true,
+          msg:"incorrect password",
+          severity:"error"
+      })
       setFullScreen(false)
     })
 
@@ -104,7 +117,7 @@ export default function UnivLogin() {
 
           <Box component="form" onSubmit={handleSubmit}  sx={{ mt: 1 }}>
            
-          <TextField
+          {/* <TextField
                     margin="dense"
                     id="mobile"
                     name="mobile"
@@ -125,7 +138,7 @@ export default function UnivLogin() {
                       setHelper(true);
                       }
                     }}
-                />
+                /> */}
 
             <TextField
               margin="normal"

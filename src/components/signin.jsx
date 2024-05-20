@@ -16,38 +16,50 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useSnackContext } from '../SnackProvider';
 import { useFullScreenContext } from '../fullScreenProvider';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '../authContextProvider';
 
 export default function SignIn() {
 
     const [showPassword,setShowPassword]=useState(false);
     const handleClickShowPassword = () => setShowPassword(!showPassword);
     const handleMouseDownPassword = () => setShowPassword(!showPassword);
-    const [mobile,setMobile]=useState("")
+    
     const [helper,setHelper]=useState(false)
     const {snack,setSnack}=useSnackContext();
     const {fullScreen,setFullScreen}=useFullScreenContext();
+    const navigate=useNavigate();
+    const {auth, setAuth}=useAuthContext();
     
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    setSnack({
+      open:true,
+      msg:'welcome to the portal',
+      severity:'success'
+    })
+
+    
     setFullScreen(true)
     const data = new FormData(event.currentTarget);
+
     const formData = {
       email: data.get('email'),
       password: data.get('password'),
-      select:data.get('role')
+      role:data.get('role')
     }
+    
+      
+
     const queryParams = new URLSearchParams(formData).toString();
     console.log(queryParams)
     
-    const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/login?"+queryParams;    
+    const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/SignIn?"+queryParams;    
     console.log(url,import.meta.env.VITE_HOST,import.meta.env.VITE_PORT)
 
     fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8'
-      }
+      method: 'POST'
     })
     .then(response => {
       if (!response.ok) 
@@ -56,10 +68,37 @@ export default function SignIn() {
     })
     .then(data => {
       console.log('Response:', data)
+      setAuth({
+        email:formData.email,
+        role:formData.role,
+        messId: data.mess_Id?data.mess_Id:'MBMUJ',
+        name: data.fullName,
+        university: data.university_Id,
+        branch:data.branch,
+        rollNo:data.rollNo
+        })
       setFullScreen(false)
+
+        if(formData.role=='Student')
+        navigate('/userdashboard')
+        else
+        navigate('/admindashboard')
     })
     .catch(error => {
+
       console.error('Error:', error)
+
+      setSnack({
+        open:true,
+        msg:'Invalid Credentials',
+        severity:'error'
+      })
+
+        // if(formData.role=='Student')
+        // navigate('/userdashboard')
+        // else
+        // navigate('/admindashboard')
+
       setFullScreen(false)
     })
 
@@ -108,33 +147,11 @@ export default function SignIn() {
                 defaultValue={"Student"}
             >
                 <MenuItem value={"Student"}>Student</MenuItem>
-                <MenuItem value={"Admin"}>Admin</MenuItem>
+                <MenuItem value={"Warden"}>Warden</MenuItem>
                 <MenuItem value={"Manager"}>Manager</MenuItem>
             </Select>
             
-            <TextField
-                    margin="dense"
-                    id="mobile"
-                    name="mobile"
-                    label="Mobile"
-                    type="text"
-                    fullWidth
-                    required
-                    inputProps={{ maxLength:10,minLength:10}}
-                    value={mobile}
-                    helperText={helper?"pls enter number only":""}
-                    onChange={(e)=>{
-                      const num=e.target.value;
-                      if(/^\d+$/.test(num)){
-                      setMobile(num)
-                      }
-                      else{
-                      setMobile("")
-                      setHelper(true);
-                      }
-                    }}
-                />
-
+            
             <TextField
               margin="normal"
               required

@@ -18,8 +18,11 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { useNavigate } from 'react-router-dom';
 
 const UnivSignUp = () => {
+
+    const navigate = useNavigate();
     const [formData,setFormData] = useState({});
     const [showPassword,setShowPassword]=useState(false);
     const [showPassword2,setShowPassword2]=useState(false);
@@ -35,6 +38,7 @@ const UnivSignUp = () => {
 
     const[allowResend,setAllowResend]=useState(false)
     const[resendSecs,setResendSecs]=useState(0)
+
 
     useEffect(
       ()=>{
@@ -54,15 +58,32 @@ const UnivSignUp = () => {
 
     const submitOtp=(e)=>{
       e.preventDefault();
+
       setFullScreen(true)
 
-      const queryParams = new URLSearchParams(formData).toString();
-      console.log(queryParams)
 
+        const otpCopy=formData.otp.trim();
+
+        //mohitdewasi420@gmail.com dewasimeshsite@gmail.com
+        //Viju@123
+        
+        if(e.target.emailOtp.value==otpCopy){  
+        
+          setOtp(false)
+          setSnack(
+            {
+              open:true,
+              msg:"your otp was correct now you can login",
+              severity:"success"
+            }   
+          )
+
+          const queryParams = new URLSearchParams(formData).toString();
+          
           const url ='http://'+import.meta.env.VITE_HOST + ":" + import.meta.env.VITE_PORT + "/UnifiedMess/OTPValidationUniversity?"+queryParams;    
+          
           fetch(url, {
-            method: 'POST',
-            credentials:'include',
+            method: 'POST'
           })
           .then(response => {
             if (!response.ok) 
@@ -72,13 +93,34 @@ const UnivSignUp = () => {
           .then(data => {
             console.log('Response:', data)
             setFullScreen(false)
+            navigate('/instlogin')
             setOtp(false)
           })
           .catch(error => {
             console.error('Error:', error)
             setFullScreen(false)
+            setSnack({
+              open:true,
+              msg:"some error occured pls retry the signup",
+              severity:"error"
+            })
             setOtp(false)
           })
+
+
+        }
+        else{
+          setSnack(
+            {
+              open:true,
+              msg:"your otp was incorrect pls retry",
+              severity:"error"
+            }   
+          )
+        }
+        setFullScreen(false)
+     
+      
       }
 
     const resendOtp=()=>{
@@ -87,7 +129,6 @@ const UnivSignUp = () => {
       const queryParams = new URLSearchParams(formData).toString();
       console.log(queryParams)
 
-      // const url ='http://192.168.74.13:8080/UnifiedMess/SignupUniversity?'+queryParams;
       const url ='http://'+ import.meta.env.VITE_HOST +':'+ import.meta.env.VITE_PORT+'/UnifiedMess/SignupUniversity?'+queryParams;    
     
       fetch(url,{
@@ -100,6 +141,7 @@ const UnivSignUp = () => {
       })
       .then(data => {
         console.log('Response:', data)
+        setFormData({...formData,otp:data});
         if(!otp)
         setOtp(true)
         setAllowResend(false)
@@ -108,8 +150,6 @@ const UnivSignUp = () => {
       })
       .catch(error => {
         console.error('Error:', error)
-        if(!otp)
-        setOtp(true)
         setResendSecs(10)
         setAllowResend(false)
         setFullScreen(false)
@@ -152,6 +192,7 @@ const UnivSignUp = () => {
       location: 'Jodhpur'
     })
     
+
     resendOtp();
   };
 
@@ -354,10 +395,6 @@ const UnivSignUp = () => {
                       const num=e.target.value;
                       if(/^\d+$/.test(num)){
                       setEmailOtp(num)
-                      setFormData({
-                        ...formData,
-                          otp:num
-                      })
                       }
                       else{
                       setEmailOtp("")

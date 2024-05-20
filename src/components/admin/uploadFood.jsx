@@ -20,7 +20,7 @@ import { useSnackContext } from '../../SnackProvider';
 const UploadFood = () => {
     
     const [menu,setMenu]=useState(false);
-    const [mealTime,setMealTime]=useState("morning");
+    const [mealTime,setMealTime]=useState("lunch");
     const [food,setFood]=useState([]);
     const [item,setItem]=useState("");
     const {snack,setSnack}=useSnackContext();
@@ -157,8 +157,8 @@ const UploadFood = () => {
                     onChange={(e)=>(setMealTime(e.target.value))}
                     required
                   >
-                    <FormControlLabel value="morning" control={<Radio />} label="Morning" />
-                    <FormControlLabel value="evening" control={<Radio />} label="Evening" />
+                    <FormControlLabel value="lunch" control={<Radio />} label="lunch" />
+                    <FormControlLabel value="dinner" control={<Radio />} label="dinner" />
                   </RadioGroup>
 
                    <Grid container spacing={2}>

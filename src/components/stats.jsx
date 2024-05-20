@@ -23,18 +23,15 @@ import { useSnackContext } from '../SnackProvider';
 
 
 
-const Stats = () => {
+const Stats = (props) => {
 
   const [view,setView]=useState(true)
+  const {mesh,role}=props;
 
   function createData(statTitle,value,type){return {statTitle,value,type}}
   
-  const rows = [
-    createData('opt out this month',4,'count'),
-    createData('Mesh Average rating this month',2,'star'),
-    createData('past meal rating',4,'star'),
-    createData('previous month optouts',[{month:'Jan',value:5},{month:'Feb',value:3},{month:'Mar',value:2}],'list')
-  ];
+  const [rows,setRows] = useState([])
+
 
   const {snack,setSnack}=useSnackContext();
   const {fullScreen,setFullScreen}=useFullScreenContext();
@@ -42,19 +39,21 @@ const Stats = () => {
   useEffect(()=>{
         setFullScreen(true)
         const formData={
-          mesh:3,
-          university:'MBM',
-          requesterMail:'kdjf@kdj.com'
+          messId:mesh,
+          studentId:props.student_Email?props.student_Email:'maheshme2002@gmail.com'
         }
         const queryParams = new URLSearchParams(formData).toString();
         
-        const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/getStats?"+queryParams;    
+
+            
+            
+            
+            if(role=='Student'){
+
+              const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/StudentStats?"+queryParams;    
             
             fetch(url, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json;charset=UTF-8'
-              }
+              method: 'GET'
             })
             .then(response => {
               if (!response.ok) 
@@ -63,15 +62,78 @@ const Stats = () => {
             })
             .then(data => {
               console.log('Response:', data)
-              data.stats.forEach((x)=>{
-                rows.push(x)
-              })
+              
+              const fetched=[
+                createData('Mesh Average rating this month',data.avgRating,'star'),
+                createData('past meal rating',data.pastRating,'star'),
+                createData('opt out this month',data.may,'count'),
+                createData('previous month optouts',
+                [
+                {month:'Jan',value:data.jan},
+                {month:'Feb',value:data.fab},
+                {month:'Mar',value:data.march},
+                {month:'Apr',value:data.april},
+                {month:'May',value:data.may}
+              ],'list'),
+                 
+              ]
+              setRows(fetched)
+
               setFullScreen(false)
             })
             .catch(error => {
               console.error('Error:', error)
+              setRows([
+                createData('Mesh Average rating this month',2,'star'),
+                createData('past meal rating',4,'star'),
+                createData('opt out this month',6,'count'),
+                createData('previous month optouts',
+                [
+                {month:'Jan',value:1},
+                {month:'Feb',value:2},
+                {month:'Mar',value:0},
+                {month:'Apr',value:2},
+                {month:'May',value:6}
+              ],'list')
+              ])
               setFullScreen(false)
             })
+
+            }
+            else{
+              const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/GetRating?"+queryParams;    
+
+              fetch(url, {
+                method: 'GET'
+              })
+              .then(response => {
+                if (!response.ok) 
+                throw new Error('Network response was not ok');
+                return response.json()
+              })
+              .then(data => {
+                console.log('Response:', data)
+                if(!data.avgRating)
+                data.avgRating=2
+                const fetched=[
+                  createData('Mesh Average rating this month',data.avgRating,'star'),
+                  createData('past meal rating',data.pastRating,'star'),
+                ]
+                setRows([fetched[0],fetched[1]])
+                setFullScreen(false)
+              })
+              .catch(error => {
+                console.error('Error:', error)
+  
+                setRows([
+                  createData('Mesh Average rating this month',2,'star'),
+                  createData('past meal rating',4,'star'),
+                ])
+                setFullScreen(false)
+              })
+
+            }
+      
   },[])
 
 

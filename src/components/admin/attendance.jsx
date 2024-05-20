@@ -14,8 +14,11 @@ import PersonIcon from '@mui/icons-material/Person';
 import {useFullScreenContext} from '../../fullScreenProvider.jsx';
 import {useSnackContext} from '../../SnackProvider.jsx';
 
-const Attendance = () => {
+
+const Attendance = (props) => {
     
+  const mesh=props.mesh
+
   const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
     clipPath: 'inset(50%)',
@@ -53,7 +56,7 @@ const Attendance = () => {
       // use roll no to fetch the data from the server for attendance details
       const formData={
         univesityId:'mbm',
-        meshNo:1,
+        meshNo:mesh,
         rollNo:e.target.rollNo.value,
         fromMonth:e.target.fromMonth.value,
         toMonth:e.target.toMonth.value
@@ -103,47 +106,61 @@ const Attendance = () => {
       
       setFullScreen(true)
 
-      const formData={
-        univesityId:'mbm',
-        meshNo:1,
-        fromMonth:e.target.fromMonth.value,
-        toMonth:e.target.toMonth.value
-      }
-      const queryParams = new URLSearchParams(formData).toString();
-      const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/attendanceBulk?"+queryParams;    
-            
-      fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8'
-        }
-      })
-      .then(response => {
-        if (!response.ok) 
-        throw new Error('Network response was not ok');
-        const header = response.headers.get('Content-Disposition');
-        const parts = header.split(';');
-        const filename = parts[1].split('=')[1].replaceAll("\"", "");
-        const blob = response.blob();
-        return {blob,filename};
-      })
-      .then(data => {
-            const {blob,filename}=data;
-            if (blob != null) {
-              var url = window.URL.createObjectURL(blob);
-              var a = document.createElement('a');
-              a.href = url;
-              a.download = filename;
-              document.body.appendChild(a);
-              a.click();
-              a.remove();
-          }
-      })
-      .catch(error => {
-        console.error('Error:', error)
-        setFullScreen(false)
-      })
+        let startMonth=e.target.fromMonth.value
+        let endMonth=e.target.toMonth.value
 
+          if(startMonth>=6 &&startMonth<=12)
+            startMonth='2023'+'-'+startMonth;
+          else
+          startMonth='2024'+'-'+startMonth;
+
+          if(endMonth>=6 &&endMonth<=12)
+          endMonth='2023'+'-'+endMonth;
+          else
+          endMonth='2024'+'-'+endMonth;
+
+    
+      const formData={
+        meshID:mesh,
+        startMonth:startMonth,
+        endMonth:endMonth,
+      }
+
+      const queryParams = new URLSearchParams(formData).toString();
+      const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+ "/UnifiedMess/OptOutDownload?" +queryParams;    
+            
+      // fetch(url, {
+      //   method: 'GET'
+      // })
+      // .then(response => {
+      //   if (!response.ok) 
+      //   throw new Error('Network response was not ok');
+      //   const header = response.headers.get('Content-Disposition');
+      //   const parts = header.split(';');
+      //   const filename = parts[1].split('=')[1].replaceAll("\"", "");
+      //   const blob = response.blob();
+      //   return {blob,filename};
+      // })
+      // .then(data => {
+      //       const {blob,filename}=data;
+      //       if (blob != null) {
+      //         var url = window.URL.createObjectURL(blob);
+      //         var a = document.createElement('a');
+      //         a.href = url;
+      //         a.download = filename;
+      //         document.body.appendChild(a);
+      //         a.click();
+      //         a.remove();
+      //     }
+      // })
+      // .catch(error => {
+      //   console.error('Error:', error)
+      //   setFullScreen(false)
+      // })
+
+      window.open(url, '_blank', 'noopener,noreferrer');
+
+      setFullScreen(false);
       console.log("files downloaded")
       setOption('none')
     }
@@ -223,6 +240,7 @@ const Attendance = () => {
                     onChange={(e)=>{setToMonth(e.target.value)}}
                     required
                 />
+                
 
         </DialogContent>
 

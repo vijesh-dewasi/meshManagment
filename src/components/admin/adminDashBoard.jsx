@@ -8,9 +8,12 @@ import UploadFood from './uploadFood.jsx';
 import Students from './students.jsx'; 
 import Attendance from './attendance.jsx';
 import OptOut from './optOut.jsx';
+import { useAuthContext } from '../../authContextProvider.jsx';
 
 const AdminDashBoard = () => {
        const role='warden'
+       const {auth, setAuth}=useAuthContext();
+
   return (
     <>
     <NavBar role={'admin'}/>
@@ -20,8 +23,8 @@ const AdminDashBoard = () => {
           <Grid item xs={12} sm md={4} lg={5} alignSelf={'flex-start'}>
           
           <Stack direction={'column'}>
-          <TodayMenu></TodayMenu>
-          <Stats></Stats>
+          <TodayMenu mesh={auth.mesh} ></TodayMenu>
+          <Stats mesh={auth.mesh} role='University' ></Stats>
           </Stack>
 
           </Grid>

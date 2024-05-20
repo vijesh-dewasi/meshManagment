@@ -25,14 +25,17 @@ function createData(mealTime,items,rating){
   return {mealTime,items,rating};
 }
 
-const rows = [
-  createData('Morning',["rice","daal","roti","sabji","dahi","salad"],4.5),
-  createData('Afternoon',["rice","daal","roti","sabji","dahi","salad"],4.5)
-];
 
 
-
-const TodayMenu = () => {
+const TodayMenu = (props) => {
+  
+  const mesh= props.mesh;
+  
+  const rows = [
+    createData('Lunch',["dahi","daal","sabji","bati"],3.5),
+    createData('Dinner',["rice","daal","roti","sabji","dahi","salad"],4.0)
+  ];
+  
   const [view,setView]=useState(true)
 
   const {snack,setSnack}=useSnackContext();
@@ -41,19 +44,14 @@ const TodayMenu = () => {
   useEffect(()=>{
         setFullScreen(true)
         const formData={
-          mesh:3,
-          university:'MBM',
-          requesterMail:'chahal@kd.com'
+          messId:'MBMUJ',
         }
         const queryParams = new URLSearchParams(formData).toString();
         
-        const url ='http://'+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/UnifiedMess/todayMenu?"+queryParams;    
+        const url ='http://'+import.meta.env.VITE_HOST+ ":" +import.meta.env.VITE_PORT+ "/UnifiedMess/ViewMenu?"+queryParams;    
             
             fetch(url, {
               method: 'GET',
-              headers: {
-                'Content-Type': 'application/json;charset=UTF-8'
-              }
             })
             .then(response => {
               if (!response.ok) 
@@ -62,9 +60,11 @@ const TodayMenu = () => {
             })
             .then(data => {
               console.log('Response:', data)
+
               data.menu.forEach((x)=>{
                 rows.push(x)
               })
+
               setFullScreen(false)
             })
             .catch(error => {

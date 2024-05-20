@@ -17,12 +17,12 @@ function getRandomNumber(min, max) {
   return Math.round(Math.random() * (max - min) + min);
 }
 
-function fakeFetch(date, { signal }){
+function dateFetcher(date, { signal }){
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
       const daysInMonth = date.daysInMonth();
-      const daysToHighlight = [1, 2, 3].map(() => getRandomNumber(1, daysInMonth));
-      const mealsForDay=[1, 2, 3].map(() => getRandomNumber(1,2))
+      const daysToHighlight = [1, 2, 3,4,5,6,7,8,9,10,12].map(() => getRandomNumber(1,21));
+      const mealsForDay=[1, 2, 3,4,5,6,7,8,9,10,12].map(() => getRandomNumber(1,2))
 
       resolve({ daysToHighlight,mealsForDay});
     }, 500);
@@ -73,7 +73,7 @@ export default function DateCalendarServerRequest() {
   const fetchHighlightedDays = (date) => {
     setFullScreen(true);
     const controller = new AbortController();
-    fakeFetch(date, {
+    dateFetcher(date, {
       signal: controller.signal,
     })
       .then(({ daysToHighlight,mealsForDay }) => {
