@@ -6,6 +6,7 @@ import Stats from './stats.jsx';
 import ActionButtons from './actionButtons.jsx';
 import { Grid} from '@mui/material';
 import { useAuthContext } from '../authContextProvider';
+import {Footer} from '../footer';
 
 const UserDashBoard = () => {
 
@@ -45,6 +46,8 @@ const UserDashBoard = () => {
            
 
         </Grid>
+
+        <Footer></Footer>
         </>
   )
 }
