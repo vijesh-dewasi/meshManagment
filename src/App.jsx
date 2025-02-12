@@ -28,6 +28,7 @@ import { ColorModeContext } from './colorModeContext';
 import { AuthProvider } from './authContextProvider.jsx';
 
 
+//entry point of the application
 function App() {
   
   const [mode, setMode] =useState('light');
